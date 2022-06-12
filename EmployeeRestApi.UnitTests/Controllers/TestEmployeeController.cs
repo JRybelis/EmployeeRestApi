@@ -1,7 +1,31 @@
+using EmployeeRestApi.Controllers;
+using FluentAssertions;
+using Microsoft.AspNetCore.Mvc;
+using Moq;
+
 namespace EmployeeRestApiUnitTests.Controllers;
 
 public class TestEmployeeController : BaseTest
 {
+    [Test]
+    public async Task GetAll_OnSuccess_ReturnsStatusCode200()
+    {
+        // Arrange
+        var mockEmployeeService = new Mock<IEmployeeService>();
+        
+        mockEmployeeService
+            .Setup(service => service.GetAllEmployees())
+            .ReturnsAsync(EmployeesFixture.GetTestEmployees);
+
+        var sut = new EmployeeController(mockEmployeeService.Object);
+
+        // Act
+        var result = (OkObjectResult) await sut.GetAll();
+        
+        // Assert
+        result.StatusCode.Should().Be(200);
+    }
+
     [Test]
     public void EmployeeFirstName_Always_CannotBeUsedAsLastName()
     {
@@ -23,6 +47,5 @@ public class TestEmployeeController : BaseTest
         Employee = new EmployeeRepository(Context).Post(employee);
         
         Assert.AreNotEqual(employee.FirstName, employee.LastName);
-
     }
 }
