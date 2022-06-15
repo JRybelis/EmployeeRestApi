@@ -13,11 +13,11 @@ public class Employee
     
     
     [SourceMember(nameof(EmployeeDto.FirstName))]
-    public string FirstName { get; init; }
+    public string FirstName { get; set; }
     
     
     [SourceMember(nameof(EmployeeDto.LastName))]
-    public string LastName { get; init; }
+    public string LastName { get; set; }
     
     
     [SourceMember(nameof(EmployeeDto.BirthDate))]

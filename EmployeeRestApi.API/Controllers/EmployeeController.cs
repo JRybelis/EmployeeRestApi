@@ -43,7 +43,7 @@ public class EmployeeController : Controller
     [HttpGet]
     public async Task<EmployeeDto> GetByIdAsync(long id)
     {
-        var employee = await _employeeRepository.GetByIdAsync(id);
+        var employee = await _employeeRepository.GetById(id);
         return _mapper.Map<EmployeeDto>(employee);
     }
     
@@ -89,7 +89,7 @@ public class EmployeeController : Controller
     [HttpPut]
     public async Task<IActionResult> UpdateSalaryAsync([FromRoute] long id, [FromBody] decimal salary)
     {
-        var employee = await _employeeRepository.GetByIdAsync(id);
+        var employee = await _employeeRepository.GetById(id);
         await _employeeRepository.UpdateSalary(id, salary);
         
         return AcceptedAtAction(nameof(UpdateSalaryAsync), new {id = employee.Id}, salary);
@@ -99,7 +99,7 @@ public class EmployeeController : Controller
     [HttpDelete]
     public async Task<IActionResult> DeleteEmployeeAsync([FromRoute] long id)
     {
-        var existingEmployee = await _employeeRepository.GetByIdAsync(id);
+        var existingEmployee = await _employeeRepository.GetById(id);
         
         if (existingEmployee is null)
         {

@@ -1,54 +1,123 @@
+using EmployeeRestApi.Data;
 using EmployeeRestApi.Interfaces;
 using EmployeeRestApiLibrary.Enumerations;
 using EmployeeRestApiLibrary.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace EmployeeRestApi.Repositories;
 
 public class EmployeeRepository : IEmployeeRepository
 {
-    public Task<List<Employee>> GetAll()
-    {
-        throw new NotImplementedException();
-    }
+    private readonly DataContext _context;
 
-    public Task<Employee> GetById(long id)
+    public EmployeeRepository(DataContext context)
     {
-        throw new NotImplementedException();
+        _context = context ?? throw new ArgumentNullException(nameof(context));
     }
     
-    public Task<List<Employee>> GetAllByManagerId(long id)
+    public async Task<IEnumerable<Employee>> GetAll()
     {
-        throw new NotImplementedException();
+        return await _context.Set<Employee>().ToListAsync();
+    }
+    
+    public async Task<IEnumerable<Employee>> GetAllByManagerId(long id)
+    {
+        var allEmployees = await GetAll();
+
+        return allEmployees.Where(employee => employee.Manager.Id == id).ToList();
     }
 
-    public Task<Employee> GetByNameAndBirthdateInterval(string LastName, DateTime birthDateRangeMin
+    public async Task<Employee> GetById(long id)
+    {
+        var employee = await _context.Set<Employee>().FirstOrDefaultAsync(empl => empl.Id == id);
+
+        if (employee is null)
+        {
+            throw new ArgumentNullException(nameof(employee));
+        }
+
+        return employee;
+    }
+
+    public async Task<Employee> GetByNameAndBirthdateInterval(string lastName, DateTime birthDateRangeMin
         , DateTime birthDateRangeMax)
     {
-        throw new NotImplementedException();
+        var employee = await _context.Set<Employee>().FirstOrDefaultAsync(empl =>
+            empl.LastName == lastName && 
+            empl.BirthDate > birthDateRangeMin && 
+            empl.BirthDate < birthDateRangeMax);
+        
+        if (employee is null)
+        {
+            throw new ArgumentNullException(nameof(employee));
+        }
+
+        return employee;
     }
 
-    public Task<EmployeeStatisticsByRole> GetStatisticsByJobRole(JobRole jobRole)
+    public async Task<EmployeeStatisticsByRole> GetStatisticsByJobRole(JobRole jobRole)
     {
-        throw new NotImplementedException();
+        var employeeStatisticsByRole = new EmployeeStatisticsByRole();
+        var employeesInThisRole = new List<Employee>();
+        var allEmployees = await GetAll();
+        decimal totalSalary = 0;
+        
+        foreach (var employee in allEmployees)
+        {
+            if (employee.Role != jobRole) continue;
+            
+            employeesInThisRole.Add(employee);
+            totalSalary += employee.CurrentSalary;
+        }
+        employeeStatisticsByRole.JobRole = jobRole;
+        employeeStatisticsByRole.EmployeeCount = allEmployees.Count();
+        employeeStatisticsByRole.SalaryAverage = totalSalary/employeeStatisticsByRole.EmployeeCount;
+
+        return employeeStatisticsByRole;
     }
 
-    public Task Create(Employee employee)
+    public async Task Create(Employee employee)
     {
-        throw new NotImplementedException();
+        await _context.AddAsync(employee);
+        await _context.SaveChangesAsync();
     }
 
-    public Task Update(long id)
+    public async Task Update(long id, Employee employee)
     {
-        throw new NotImplementedException();
+        var existingEmployee = await GetById(id);
+
+        _context.Update(existingEmployee);
+        existingEmployee.FirstName = employee.FirstName;
+        existingEmployee.LastName = employee.LastName;
+        existingEmployee.BirthDate = employee.BirthDate;
+        existingEmployee.EmploymentCommencementDate = employee.EmploymentCommencementDate;
+        existingEmployee.HomeAddress = employee.HomeAddress;
+        existingEmployee.Manager = employee.Manager;
+        existingEmployee.Role = employee.Role;
+        existingEmployee.CurrentSalary = employee.CurrentSalary;
+
+        await _context.SaveChangesAsync();
     }
 
-    public Task UpdateSalary(long id, decimal salary)
+    public async Task UpdateSalary(long id, decimal salary)
     {
-        throw new NotImplementedException();
+        var existingEmployee = await GetById(id);
+        
+        _context.Update(existingEmployee);
+        existingEmployee.CurrentSalary = salary;
+        
+        await _context.SaveChangesAsync();
     }
 
-    public Task Delete(long id)
+    public async Task Delete(long id)
     {
-        throw new NotImplementedException();
+        var employee = await GetById(id);
+
+        if (employee is not null)
+        {
+            _context.Remove(employee);
+        }
+
+        await _context.SaveChangesAsync();
     }
 }
