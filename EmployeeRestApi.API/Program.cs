@@ -52,11 +52,9 @@ builder.Services.AddSwaggerGen(options =>
     // using System.Reflection;
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
-    
     options.UseInlineDefinitionsForEnums();
 });
 builder.Services.AddSwaggerGenNewtonsoftSupport();
-
 builder.Services.AddScoped(typeof(IEmployeeService), typeof(EmployeeService));
 
 var app = builder.Build();
