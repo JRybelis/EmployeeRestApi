@@ -1,4 +1,6 @@
 using EmployeeRestApi.Controllers;
+using EmployeeRestApi.Interfaces;
+using EmployeeRestApiLibrary.Models;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -11,13 +13,13 @@ public class TestEmployeeController : BaseTest
     public async Task GetAll_OnSuccess_ReturnsStatusCode200()
     {
         // Arrange
-        var mockEmployeeService = new Mock<IEmployeeService>();
+        var mockEmployeeRepository = new Mock<IEmployeeRepository>();
         
-        mockEmployeeService
-            .Setup(service => service.GetAllEmployees())
-            .ReturnsAsync(EmployeesFixture.GetTestEmployees);
+        mockEmployeeRepository
+            .Setup(service => service.GetAll())
+            .ReturnsAsync(EmployeesFixture.GetTestEmployees); // reik mocked auto repository ipaisyt cia
 
-        var sut = new EmployeeController(mockEmployeeService.Object);
+        var sut = new EmployeeController(mockEmployeeRepository.Object);
 
         // Act
         var result = (OkObjectResult) await sut.GetAll();
@@ -26,7 +28,7 @@ public class TestEmployeeController : BaseTest
         result.StatusCode.Should().Be(200);
     }
 
-    [Test]
+    /*[Test]
     public void EmployeeFirstName_Always_CannotBeUsedAsLastName()
     {
         // Arrange
@@ -47,5 +49,5 @@ public class TestEmployeeController : BaseTest
         Employee = new EmployeeRepository(Context).Post(employee);
         
         Assert.AreNotEqual(employee.FirstName, employee.LastName);
-    }
+    }*/
 }

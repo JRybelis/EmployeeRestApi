@@ -1,17 +1,17 @@
+using EmployeeRestApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-using Microsoft.Extensions.DependencyInjection;
 
 namespace EmployeeRestApiUnitTests.Helpers;
 
 public class InMemoryDbContextRunner
 {
-    protected DataContext Context;
+    protected DataContext context;
 
     public InMemoryDbContextRunner(DataContext context = null)
     {
-        Context = context ?? GetInMemoryDbContext();
+        this.context = context ?? GetInMemoryDbContext();
     }
 
     protected DataContext GetInMemoryDbContext()

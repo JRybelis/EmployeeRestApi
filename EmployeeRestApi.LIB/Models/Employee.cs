@@ -12,5 +12,5 @@ public class Employee
     public Employee Manager { get; set; }
     public Address HomeAddress { get; set; }
     public decimal CurrentSalary { get; set; }
-    public JobRole Role { get; set; }
+    public JobRole Role { get; set; } // 1 to many
 }
