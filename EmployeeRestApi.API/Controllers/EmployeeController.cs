@@ -63,4 +63,23 @@ public class EmployeeController : Controller
     {
         return await _employeeRepository.GetStatisticsByJobRole(jobRole);
     }
+
+    [Route("create")]
+    [HttpPost]
+    public async Task<ActionResult<EmployeeDto> Create([FromBody] EmployeeDto employeeDto)
+    {
+        Employee employee = new()
+        {
+            FirstName = employeeDto.FirstName,
+            LastName = employeeDto.LastName,
+            BirthDate = employeeDto.BirthDate,
+            EmploymentCommencementDate = employeeDto.EmploymentCommencementDate,
+            Manager = employeeDto.Manager ?? null,
+            HomeAddress = employeeDto.HomeAddress,
+            CurrentSalary = employeeDto.CurrentSalary,
+            Role = employeeDto.Role
+        };
+        await _employeeRepository.Create(employee);
+        return CreatedAtAction(nameof(GetById), new {id = employee.Id}, employee.AsDto())// takes the newly created employee, maps it as employeeDto and returns it as GetById call in the response body
+    }
 }
