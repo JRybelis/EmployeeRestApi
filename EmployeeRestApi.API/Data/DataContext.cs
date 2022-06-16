@@ -1,4 +1,4 @@
-using EmployeeRestApiLibrary.Dtos;
+using EmployeeRestApi.Helpers;
 using EmployeeRestApiLibrary.Models;
 using Microsoft.EntityFrameworkCore;
 namespace EmployeeRestApi.Data;
@@ -25,6 +25,7 @@ public class DataContext : DbContext
         ConfigureEntityPrimaryKeys(modelBuilder);
         ConfigureEntityProperties(modelBuilder);
         ConfigureEntityRelationships(modelBuilder);
+        modelBuilder.ApplyUtcDateTimeConverter();
     }
 
     private static void ConfigureEntityPrimaryKeys(ModelBuilder modelBuilder)
@@ -87,4 +88,17 @@ public class DataContext : DbContext
         modelBuilder.Entity<Employee>().ToTable("Employee");
         modelBuilder.Entity<Address>().ToTable("Address");
     }
+
+    /*public override int SaveChanges()
+    {
+        _changeTrackerManager?.FixupEntities(this);
+        return base.SaveChanges();
+    }
+
+    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess,
+        CancellationToken cancellationToken = default)
+    {
+        _changeTrackerManager?.FixupEntities(this);
+        return base.SaveChangesAsync();
+    }*/
 }

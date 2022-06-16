@@ -23,7 +23,11 @@ builder.Services.AddDbContext<DataContext>(options =>
 builder.Services.AddScoped(typeof(IEmployeeRepository), typeof(EmployeeRepository));
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddScoped(typeof(EmployeeController));
-builder.Services.AddControllers();
+builder.Services.AddControllers(
+    options =>
+    {
+        options.SuppressAsyncSuffixInActionNames = false;
+    });
 builder.Services.Configure<JsonOptions>(options =>
 {
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(allowIntegerValues:false));
