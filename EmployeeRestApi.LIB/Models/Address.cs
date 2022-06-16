@@ -7,6 +7,16 @@ namespace EmployeeRestApiLibrary.Models;
 [AutoMap(typeof(AddressDto), ReverseMap = true)]
 public class Address
 {
+    
+    [Ignore]
+    public long AddressId { get; set; }
+    
+    [Ignore]
+    public long EmployeeId { get; set; }
+    
+    [Ignore]
+    public Employee Employee { get; set; }
+    
     [SourceMember(nameof(AddressDto.Street))]
     public string Street { get; set; }
     

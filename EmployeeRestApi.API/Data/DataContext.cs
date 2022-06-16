@@ -1,3 +1,4 @@
+using EmployeeRestApiLibrary.Dtos;
 using EmployeeRestApiLibrary.Models;
 using Microsoft.EntityFrameworkCore;
 namespace EmployeeRestApi.Data;
@@ -5,19 +6,9 @@ namespace EmployeeRestApi.Data;
 public class DataContext : DbContext
 {
     public DbSet<Employee> Employees { get; set; }
-    
-    public static readonly ILoggerFactory loggerFactory = LoggerFactory.Create(
-        builder =>
-        {
-            builder
-                // add console as logging target
-                .AddConsole()
-                // add debug output as logging target
-                .AddDebug()
-                // set minimum level to log
-                .SetMinimumLevel(LogLevel.Debug);
-        });
-    
+    public DbSet<Address> Addresses { get; set; }
+
+
     public DataContext(DbContextOptions options) : base(options)
     {
         
@@ -25,7 +16,7 @@ public class DataContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder
-            .UseLoggerFactory(loggerFactory)
+            // .UseLoggerFactory(loggerFactory)
             .EnableDetailedErrors()
             .EnableSensitiveDataLogging();
     
@@ -33,11 +24,13 @@ public class DataContext : DbContext
     {
         ConfigureEntityPrimaryKeys(modelBuilder);
         ConfigureEntityProperties(modelBuilder);
+        ConfigureEntityRelationships(modelBuilder);
     }
 
     private static void ConfigureEntityPrimaryKeys(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Employee>().HasKey(e => e.Id);
+        modelBuilder.Entity<Address>().HasKey(a => a.AddressId);
     }
     
     private static void ConfigureEntityProperties(ModelBuilder modelBuilder)
@@ -62,11 +55,7 @@ public class DataContext : DbContext
         modelBuilder.Entity<Employee>()
             .Property(e => e.EmploymentCommencementDate)
             .IsRequired();
-        
-        modelBuilder.Entity<Employee>()
-            .Property(e => e.HomeAddress)
-            .IsRequired();
-        
+
         modelBuilder.Entity<Employee>()
             .Property(e => e.CurrentSalary)
             .IsRequired();
@@ -74,5 +63,28 @@ public class DataContext : DbContext
         modelBuilder.Entity<Employee>()
             .Property(e => e.Role)
             .IsRequired();
+
+        modelBuilder.Entity<Address>()
+            .Property(a => a.City)
+            .IsRequired();
+        
+        modelBuilder.Entity<Address>()
+            .Property(a => a.Street)
+            .IsRequired();
+        
+        modelBuilder.Entity<Address>()
+            .Property(a => a.PostCode)
+            .IsRequired();
+
+    }
+
+    private static void ConfigureEntityRelationships(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Employee>()
+            .HasOne(e => e.HomeAddress)
+            .WithOne(a => a.Employee)
+            .HasForeignKey<Address>(a => a.EmployeeId);
+        modelBuilder.Entity<Employee>().ToTable("Employee");
+        modelBuilder.Entity<Address>().ToTable("Address");
     }
 }
