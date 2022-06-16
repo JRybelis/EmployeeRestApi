@@ -55,7 +55,7 @@ builder.Services.AddSwaggerGen(options =>
     options.UseInlineDefinitionsForEnums();
 });
 builder.Services.AddSwaggerGenNewtonsoftSupport();
-builder.Services.AddScoped(typeof(IEmployeeService), typeof(EmployeeService));
+builder.Services.AddScoped(typeof(IEmployeeValidationService), typeof(EmployeeValidationService));
 
 var app = builder.Build();
 

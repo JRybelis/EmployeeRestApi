@@ -14,12 +14,15 @@ public class EmployeeController : Controller
     private readonly ILogger _logger;
     private readonly ILoggerFactory _loggerFactory = new LoggerFactory();
     private readonly IEmployeeRepository _employeeRepository;
+    private readonly IEmployeeValidationService _employeeValidationService;
     private readonly IMapper _mapper;
     
-    public EmployeeController(IEmployeeRepository employeeRepository, IMapper mapper)
+    public EmployeeController(IEmployeeRepository employeeRepository, IMapper mapper
+        , IEmployeeValidationService employeeValidationService)
     {
         _employeeRepository = employeeRepository;
         _mapper = mapper;
+        _employeeValidationService = employeeValidationService;
         _logger = _loggerFactory.CreateLogger(nameof(EmployeeController));
     }
 
@@ -39,14 +42,6 @@ public class EmployeeController : Controller
         return _mapper.Map<IEnumerable<EmployeeDto>>(employees);
     }
     
-    [Route("get/{id:long}")]
-    [HttpGet]
-    public async Task<EmployeeDto> GetByIdAsync(long id)
-    {
-        var employee = await _employeeRepository.GetById(id);
-        return _mapper.Map<EmployeeDto>(employee);
-    }
-    
     [Route("getAll/byName&BirthDateInterval")]
     [HttpGet]
     public async Task<IEnumerable<EmployeeDto>> GetByNameAndBirthDateIntervalAsync(string lastName
@@ -58,6 +53,14 @@ public class EmployeeController : Controller
         return _mapper.Map<IEnumerable<EmployeeDto>>(employees);
     }
     
+    [Route("get/{id:long}")]
+    [HttpGet]
+    public async Task<EmployeeDto> GetByIdAsync(long id)
+    {
+        var employee = await _employeeRepository.GetById(id);
+        return _mapper.Map<EmployeeDto>(employee);
+    }
+    
     [Route("getStatistics/byRole")]
     [HttpGet]
     public async Task<EmployeeStatisticsByRole> GetStatisticsByJobRoleAsync(JobRole jobRole)
@@ -67,32 +70,59 @@ public class EmployeeController : Controller
 
     [Route("create/employee")]
     [HttpPost]
-    public async Task<ActionResult<Employee>> CreateEmployeeAsync([FromBody] EmployeeDto employeeDto)
+    public async Task<IActionResult> CreateEmployeeAsync([FromBody] EmployeeDto employeeDto)
     {
-        var employee = _mapper.Map<Employee>(employeeDto);
-        await _employeeRepository.Create(employee);
-        
-        return CreatedAtRoute(nameof(CreateEmployeeAsync), new {id = employee.Id}, employeeDto);
+        var validationSuccess = await _employeeValidationService.IsDtoValidationSuccess(employeeDto, _employeeRepository);
+        if (validationSuccess)
+        {
+            var employee = _mapper.Map<Employee>(employeeDto);
+            await _employeeRepository.Create(employee);
+            return CreatedAtRoute(nameof(CreateEmployeeAsync), new {id = employee.Id}, employeeDto);
+        }
+
+        const string errorMessage = $"Validation of {nameof(employeeDto)} data failed. Database import aborted. Please review the error information above, rectify the data supplied and try again.";
+        _logger.LogError(errorMessage);
+
+        return BadRequest(nameof(CreateEmployeeAsync));
     }
 
     [Route("update/employee/{id:long}")]
     [HttpPut]
     public async Task <IActionResult> UpdateEmployeeAsync([FromRoute] long id, [FromBody] EmployeeDto employeeDto)
     {
-        var employee = _mapper.Map<Employee>(employeeDto);
-        await _employeeRepository.Update(id, employee);
+        var validationSuccess = await _employeeValidationService.IsDtoValidationSuccess(employeeDto, _employeeRepository);
+        if (validationSuccess)
+        {
+            var employee = _mapper.Map<Employee>(employeeDto);
+            await _employeeRepository.Update(id, employee);
         
-        return AcceptedAtAction(nameof(UpdateEmployeeAsync), new {id = employee.Id}, employeeDto);
-    }
+            return AcceptedAtAction(nameof(UpdateEmployeeAsync), new {id = employee.Id}, employeeDto);    
+        }
+        
+        var errorMessage = $"Validation of {nameof(employeeDto)} data failed. Database update for supplied employee id:{id} aborted. Please review the error information above, rectify the data supplied and try again.";
+        _logger.LogError(errorMessage);
+
+        return BadRequest(nameof(UpdateEmployeeAsync));
+    }   
 
     [Route("update/employee/salary/{id:long}")]
     [HttpPut]
     public async Task<IActionResult> UpdateSalaryAsync([FromRoute] long id, [FromBody] decimal salary)
     {
-        var employee = await _employeeRepository.GetById(id);
-        await _employeeRepository.UpdateSalary(id, salary);
+        var validationSuccess
+            = await _employeeValidationService.IsCurrentSalaryAPositiveAmount(salary);
+        if (validationSuccess)
+        {
+            var employee = await _employeeRepository.GetById(id);
+            await _employeeRepository.UpdateSalary(id, salary);
         
-        return AcceptedAtAction(nameof(UpdateSalaryAsync), new {id = employee.Id}, salary);
+            return AcceptedAtAction(nameof(UpdateSalaryAsync), new {id = employee.Id}, salary);    
+        }
+        
+        var errorMessage = $"Validation of the provided salary data failed. Database update for supplied employee id:{id} aborted. Please review the error information above, rectify the data supplied and try again.";
+        _logger.LogError(errorMessage);
+
+        return BadRequest(nameof(UpdateSalaryAsync));
     }
 
     [Route("delete/employee/{id:long}")]
