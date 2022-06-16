@@ -1,3 +1,4 @@
+using System.Web.Http;
 using AutoMapper;
 using EmployeeRestApi.Interfaces;
 using EmployeeRestApiLibrary.Dtos;
@@ -8,7 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace EmployeeRestApi.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+// [Route("[controller]")]
+[RoutePrefix("employees")]
 public class EmployeeController : Controller
 {
     private readonly ILogger _logger;
@@ -26,24 +28,24 @@ public class EmployeeController : Controller
         _logger = _loggerFactory.CreateLogger(nameof(EmployeeController));
     }
 
-    [Route("getAll")]
-    [HttpGet]
+    [Microsoft.AspNetCore.Mvc.Route("getAll")]
+    [Microsoft.AspNetCore.Mvc.HttpGet]
     public async Task<IEnumerable<EmployeeDto>> GetAllAsync()
     {
         var employees = await _employeeRepository.GetAll();
         return _mapper.Map<IEnumerable<EmployeeDto>>(employees);
     }
     
-    [Route("getAll/byManager/{id:long}")]
-    [HttpGet]
+    [Microsoft.AspNetCore.Mvc.Route("getAll/byManager/{id:long}")]
+    [Microsoft.AspNetCore.Mvc.HttpGet]
     public async Task<IEnumerable<EmployeeDto>> GetAllByManagerIdAsync(long id)
     {
         var employees = await _employeeRepository.GetAllByManagerId(id);
         return _mapper.Map<IEnumerable<EmployeeDto>>(employees);
     }
     
-    [Route("getAll/byName&BirthDateInterval")]
-    [HttpGet]
+    [Microsoft.AspNetCore.Mvc.Route("getAll/byName&BirthDateInterval")]
+    [Microsoft.AspNetCore.Mvc.HttpGet]
     public async Task<IEnumerable<EmployeeDto>> GetByNameAndBirthDateIntervalAsync(string lastName
         , DateTime birthDateRangeMin, DateTime birthDateRangeMax)
     {
@@ -53,31 +55,31 @@ public class EmployeeController : Controller
         return _mapper.Map<IEnumerable<EmployeeDto>>(employees);
     }
     
-    [Route("get/{id:long}")]
-    [HttpGet]
+    [Microsoft.AspNetCore.Mvc.Route("get/{id:long}")]
+    [Microsoft.AspNetCore.Mvc.HttpGet]
     public async Task<EmployeeDto> GetByIdAsync(long id)
     {
         var employee = await _employeeRepository.GetById(id);
         return _mapper.Map<EmployeeDto>(employee);
     }
     
-    [Route("getStatistics/byRole")]
-    [HttpGet]
+    [Microsoft.AspNetCore.Mvc.Route("getStatistics/byRole")]
+    [Microsoft.AspNetCore.Mvc.HttpGet]
     public async Task<EmployeeStatisticsByRole> GetStatisticsByJobRoleAsync(JobRole jobRole)
     {
         return await _employeeRepository.GetStatisticsByJobRole(jobRole);
     }
 
-    [Route("create/employee")]
-    [HttpPost]
-    public async Task<IActionResult> CreateEmployeeAsync([FromBody] EmployeeDto employeeDto)
+    [Microsoft.AspNetCore.Mvc.Route("create/employee")]
+    [Microsoft.AspNetCore.Mvc.HttpPost]
+    public async Task<IActionResult> CreateEmployeeAsync([Microsoft.AspNetCore.Mvc.FromBody] EmployeeDto employeeDto)
     {
         var validationSuccess = await _employeeValidationService.IsDtoValidationSuccess(employeeDto, _employeeRepository);
         if (validationSuccess)
         {
             var employee = _mapper.Map<Employee>(employeeDto);
             await _employeeRepository.Create(employee);
-            return CreatedAtRoute(nameof(CreateEmployeeAsync), new {id = employee.Id}, employeeDto);
+            return Accepted(nameof(CreateEmployeeAsync));
         }
 
         const string errorMessage = $"Validation of {nameof(employeeDto)} data failed. Database import aborted. Please review the error information above, rectify the data supplied and try again.";
@@ -86,9 +88,9 @@ public class EmployeeController : Controller
         return BadRequest(nameof(CreateEmployeeAsync));
     }
 
-    [Route("update/employee/{id:long}")]
-    [HttpPut]
-    public async Task <IActionResult> UpdateEmployeeAsync([FromRoute] long id, [FromBody] EmployeeDto employeeDto)
+    [Microsoft.AspNetCore.Mvc.Route("update/employee/{id:long}")]
+    [Microsoft.AspNetCore.Mvc.HttpPut]
+    public async Task <IActionResult> UpdateEmployeeAsync([FromRoute] long id, [Microsoft.AspNetCore.Mvc.FromBody] EmployeeDto employeeDto)
     {
         var validationSuccess = await _employeeValidationService.IsDtoValidationSuccess(employeeDto, _employeeRepository);
         if (validationSuccess)
@@ -105,9 +107,9 @@ public class EmployeeController : Controller
         return BadRequest(nameof(UpdateEmployeeAsync));
     }   
 
-    [Route("update/employee/salary/{id:long}")]
-    [HttpPut]
-    public async Task<IActionResult> UpdateSalaryAsync([FromRoute] long id, [FromBody] decimal salary)
+    [Microsoft.AspNetCore.Mvc.Route("update/employee/salary/{id:long}")]
+    [Microsoft.AspNetCore.Mvc.HttpPut]
+    public async Task<IActionResult> UpdateSalaryAsync([FromRoute] long id, [Microsoft.AspNetCore.Mvc.FromBody] decimal salary)
     {
         var validationSuccess
             = await _employeeValidationService.IsCurrentSalaryAPositiveAmount(salary);
@@ -125,8 +127,8 @@ public class EmployeeController : Controller
         return BadRequest(nameof(UpdateSalaryAsync));
     }
 
-    [Route("delete/employee/{id:long}")]
-    [HttpDelete]
+    [Microsoft.AspNetCore.Mvc.Route("delete/employee/{id:long}")]
+    [Microsoft.AspNetCore.Mvc.HttpDelete]
     public async Task<IActionResult> DeleteEmployeeAsync([FromRoute] long id)
     {
         var existingEmployee = await _employeeRepository.GetById(id);

@@ -74,7 +74,7 @@ public class EmployeeValidationService : IEmployeeValidationService
                 .EmploymentCommencementDate))
         {
             errorMessage
-                = "The employee cannot have started to work for this company prior to 2000/01/01.";
+                = "The employee cannot have started to work for this company prior to 2000-01-01.";
             _logger.LogDebug(errorMessage);
             return false;
         }
@@ -116,7 +116,7 @@ public class EmployeeValidationService : IEmployeeValidationService
 
     public Task<bool> IsEmployeeBetweenTheAgesOf18And70(DateTime birthDate)
     {
-        var birthDateSupplied = DateTime.ParseExact(birthDate.ToString(), "dd/MM/yyyy HH:mm:ss"
+        var birthDateSupplied = DateTime.ParseExact(birthDate.ToString(), "yyyy-MM-dd HH:mm:ss"
             , CultureInfo.InvariantCulture).Date;
         var currentDate = DateTime.Today.Date;
         var ageInYears = (currentDate - birthDateSupplied).TotalDays / 365;
@@ -126,9 +126,9 @@ public class EmployeeValidationService : IEmployeeValidationService
 
     public Task<bool> IsEmploymentCommencementDateLaterThan20000101(DateTime startDate)
     {
-        var startDateSupplied = DateTime.ParseExact(startDate.ToString(), "dd/MM/yyyy HH:mm:ss"
+        var startDateSupplied = DateTime.ParseExact(startDate.ToString(), "yyyy-MM-dd HH:mm:ss"
             , CultureInfo.InvariantCulture).Date;
-        var companyEmployeeRecordsStartDate = DateTime.ParseExact("01/01/2000 00:00:00", "dd/MM/yyyy HH:mm:ss"
+        var companyEmployeeRecordsStartDate = DateTime.ParseExact("2000-01-01 00:00:00", "yyyy-MM-dd HH:mm:ss"
             , CultureInfo.InvariantCulture).Date;
 
         return Task.FromResult(startDateSupplied > companyEmployeeRecordsStartDate);
@@ -136,7 +136,7 @@ public class EmployeeValidationService : IEmployeeValidationService
 
     public Task<bool> IsEmploymentCommencementDateLaterThanPresent(DateTime startDate)
     {
-        var startDateSupplied = DateTime.ParseExact(startDate.ToString(), "dd/MM/yyyy HH:mm:ss"
+        var startDateSupplied = DateTime.ParseExact(startDate.ToString(), "yyyy-MM-dd HH:mm:ss"
             , CultureInfo.InvariantCulture).Date;
         var currentDate = DateTime.Today.Date;
         
