@@ -11,7 +11,7 @@ public class DataContext : DbContext
 
     public DataContext(DbContextOptions options) : base(options)
     {
-        
+
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -19,7 +19,7 @@ public class DataContext : DbContext
             // .UseLoggerFactory(loggerFactory)
             .EnableDetailedErrors()
             .EnableSensitiveDataLogging();
-    
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         ConfigureEntityPrimaryKeys(modelBuilder);
@@ -33,7 +33,7 @@ public class DataContext : DbContext
         modelBuilder.Entity<Employee>().HasKey(e => e.Id);
         modelBuilder.Entity<Address>().HasKey(a => a.AddressId);
     }
-    
+
     private static void ConfigureEntityProperties(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Employee>()
@@ -44,15 +44,15 @@ public class DataContext : DbContext
         modelBuilder.Entity<Employee>()
             .Property(e => e.FirstName)
             .IsRequired();
-        
+
         modelBuilder.Entity<Employee>()
             .Property(e => e.LastName)
             .IsRequired();
-        
+
         modelBuilder.Entity<Employee>()
             .Property(e => e.BirthDate)
             .IsRequired();
-        
+
         modelBuilder.Entity<Employee>()
             .Property(e => e.EmploymentCommencementDate)
             .IsRequired();
@@ -60,7 +60,7 @@ public class DataContext : DbContext
         modelBuilder.Entity<Employee>()
             .Property(e => e.CurrentSalary)
             .IsRequired();
-        
+
         modelBuilder.Entity<Employee>()
             .Property(e => e.Role)
             .IsRequired();
@@ -68,11 +68,11 @@ public class DataContext : DbContext
         modelBuilder.Entity<Address>()
             .Property(a => a.City)
             .IsRequired();
-        
+
         modelBuilder.Entity<Address>()
             .Property(a => a.Street)
             .IsRequired();
-        
+
         modelBuilder.Entity<Address>()
             .Property(a => a.PostCode)
             .IsRequired();
@@ -88,17 +88,4 @@ public class DataContext : DbContext
         modelBuilder.Entity<Employee>().ToTable("Employee");
         modelBuilder.Entity<Address>().ToTable("Address");
     }
-
-    /*public override int SaveChanges()
-    {
-        _changeTrackerManager?.FixupEntities(this);
-        return base.SaveChanges();
-    }
-
-    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess,
-        CancellationToken cancellationToken = default)
-    {
-        _changeTrackerManager?.FixupEntities(this);
-        return base.SaveChangesAsync();
-    }*/
 }

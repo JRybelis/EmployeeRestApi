@@ -1,9 +1,9 @@
-using NUnit.Framework;
+using EmployeeRestApiUnitTests.Helpers;
 using FluentValidation;
 
 namespace EmployeeRestApiUnitTests;
 
-public class BaseTest
+public class BaseTest : InMemoryDbContextRunner
 {
     protected static void CheckError<T>(AbstractValidator<T> validator, int errorCode
         , T validatedMethod)

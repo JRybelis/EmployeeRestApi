@@ -9,6 +9,17 @@ namespace EmployeeRestApi.Repositories;
 public class EmployeeRepository : IEmployeeRepository
 {
     private readonly DataContext _context;
+    public static readonly ILoggerFactory loggerFactory = LoggerFactory.Create(
+        builder =>
+        {
+            builder
+                // add console as logging target
+                .AddConsole()
+                // add debug output as logging target
+                .AddDebug()
+                // set minimum level to log
+                .SetMinimumLevel(LogLevel.Debug);
+        });
 
     public EmployeeRepository(DataContext context)
     {
@@ -76,10 +87,11 @@ public class EmployeeRepository : IEmployeeRepository
         return employeeStatisticsByRole;
     }
 
-    public async Task Create(Employee employee)
+    public async Task<Employee> Create(Employee employee)
     {
         await _context.AddAsync(employee);
         await _context.SaveChangesAsync();
+        return employee;
     }
 
     public async Task Update(long id, Employee employee)

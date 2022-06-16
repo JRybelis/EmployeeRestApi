@@ -7,7 +7,6 @@ namespace EmployeeRestApiLibrary.Models;
 [AutoMap(typeof(AddressDto), ReverseMap = true)]
 public class Address
 {
-    
     [Ignore]
     public long AddressId { get; set; }
     
@@ -25,6 +24,6 @@ public class Address
     public string City { get; set; }
     
     
-    [SourceMember(nameof(AddressDto.Postcode))]
+    [SourceMember(nameof(AddressDto.PostCode))]
     public string PostCode { get; set; }
 }

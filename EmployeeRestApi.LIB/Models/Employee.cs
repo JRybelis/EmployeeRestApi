@@ -41,5 +41,5 @@ public class Employee
     
     
     [SourceMember(nameof(EmployeeDto.Role))]
-    public JobRole Role { get; set; } // 1 to many
+    public JobRole Role { get; set; }
 }

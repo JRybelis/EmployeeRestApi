@@ -11,7 +11,7 @@ public interface IEmployeeRepository
     Task<Employee> GetByNameAndBirthdateInterval(string LastName, DateTime birthDateRangeMin
         , DateTime birthDateRangeMax);
     Task<EmployeeStatisticsByRole> GetStatisticsByJobRole(JobRole jobRole);
-    Task Create(Employee employee);
+    Task<Employee> Create(Employee employee);
     Task Update(long id, Employee employee);
     Task UpdateSalary(long id, decimal salary);
     Task Delete(long id);
