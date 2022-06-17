@@ -13,14 +13,8 @@ public static class EmployeeMap
             , LastName = employeeDto.LastName
             , BirthDate = employeeDto.BirthDate
             , EmploymentCommencementDate = employeeDto.EmploymentCommencementDate
-            , Manager = employeeDto.Manager
-            , HomeAddress = 
-                new Address
-                {
-                      Street = employeeDto.HomeAddress.Street
-                    , City = employeeDto.HomeAddress.City
-                    , PostCode = employeeDto.HomeAddress.PostCode
-                }
+            , ManagerId = employeeDto.ManagerId
+            , HomeAddress = employeeDto.HomeAddress
             , CurrentSalary = employeeDto.CurrentSalary
             , Role = employeeDto.Role
         };
@@ -34,14 +28,8 @@ public static class EmployeeMap
             , LastName = employee.LastName
             , BirthDate = employee.BirthDate
             , EmploymentCommencementDate = employee.EmploymentCommencementDate
-            , Manager = employee.Manager
-            , HomeAddress = new AddressDto
-            {
-                  
-                Street = employee.HomeAddress.Street
-                , City = employee.HomeAddress.City
-                , PostCode = employee.HomeAddress.PostCode
-            }
+            , ManagerId = employee.ManagerId
+            , HomeAddress = employee.HomeAddress
             , CurrentSalary = employee.CurrentSalary
             , Role = employee.Role
         };

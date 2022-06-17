@@ -28,12 +28,11 @@ public class Employee
     public DateTime EmploymentCommencementDate { get; set; }
     
     
-    [SourceMember(nameof(EmployeeDto.Manager))]
-    public Employee? Manager { get; set; }
-    
-    
+    [SourceMember(nameof(EmployeeDto.ManagerId))]
+    public long? ManagerId { get; set; }
+
     [SourceMember(nameof(EmployeeDto.HomeAddress))]
-    public Address HomeAddress { get; set; }
+    public string HomeAddress { get; set; }
     
     
     [SourceMember(nameof(EmployeeDto.CurrentSalary))]

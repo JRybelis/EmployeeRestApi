@@ -8,25 +8,6 @@ public class EmployeeProfile : Profile
 {
     public EmployeeProfile()
     {
-        CreateMap<AddressDto, Address>()
-            .ForMember(
-                dest => dest.City,
-                opt => opt.MapFrom(src => $"{src.City}")
-            )
-            .ForMember(
-                dest => dest.Street,
-                opt => opt.MapFrom(src => $"{src.Street}")
-            )
-            .ForMember(dest => dest.PostCode,
-                opt => opt.MapFrom(src => $"{src.PostCode}")
-            )
-            .ForMember(dest => dest.AddressId, 
-                src => src.Ignore()
-            )
-            .ForMember(dest => dest.EmployeeId, 
-            src => src.Ignore()
-            );
-
         CreateMap<EmployeeDto, Employee>()
             .ForMember(
                 dest => dest.FirstName,
@@ -44,10 +25,10 @@ public class EmployeeProfile : Profile
                 dest => dest.EmploymentCommencementDate, opt => opt.MapFrom(src => $"{src.EmploymentCommencementDate}")
             )
             .ForMember(
-                dest => dest.Manager, opt => opt.Condition((src, dest, srcMember) => srcMember != null)    
+                dest => dest.ManagerId, opt => opt.Condition((src, dest, srcMember) => srcMember != null)    
             )
             .ForMember(
-                dest => dest.Manager, opt => opt.MapFrom(src => $"{src.Manager}")
+                dest => dest.ManagerId, opt => opt.MapFrom(src => $"{src.ManagerId}")
             )
             .ForMember(
                 dest => dest.HomeAddress, opt => opt.MapFrom(src => $"{src.HomeAddress}")

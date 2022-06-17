@@ -35,7 +35,7 @@ public class EmployeeRepository : IEmployeeRepository
     {
         var allEmployees = await GetAll();
 
-        return allEmployees.Where(employee => employee.Manager.Id == id).ToList();
+        return allEmployees.Where(employee => employee.ManagerId == id).ToList();
     }
 
     public async Task<Employee> GetById(long id)
@@ -81,7 +81,7 @@ public class EmployeeRepository : IEmployeeRepository
             totalSalary += employee.CurrentSalary;
         }
         employeeStatisticsByRole.JobRole = jobRole;
-        employeeStatisticsByRole.EmployeeCount = allEmployees.Count();
+        employeeStatisticsByRole.EmployeeCount = employeesInThisRole.Count();
         employeeStatisticsByRole.SalaryAverage = totalSalary/employeeStatisticsByRole.EmployeeCount;
 
         return employeeStatisticsByRole;
@@ -103,15 +103,8 @@ public class EmployeeRepository : IEmployeeRepository
         existingEmployee.LastName = employee.LastName;
         existingEmployee.BirthDate = employee.BirthDate;
         existingEmployee.EmploymentCommencementDate = employee.EmploymentCommencementDate;
-        existingEmployee.HomeAddress = new Address
-        {
-            EmployeeId = existingEmployee.Id
-            , Employee = existingEmployee
-            , Street = employee.HomeAddress.Street
-            , City = employee.HomeAddress.City
-            , PostCode = employee.HomeAddress.PostCode
-        };
-        existingEmployee.Manager = employee.Manager;
+        existingEmployee.HomeAddress = employee.HomeAddress;
+        existingEmployee.ManagerId = employee.ManagerId;
         existingEmployee.Role = employee.Role;
         existingEmployee.CurrentSalary = employee.CurrentSalary;
 

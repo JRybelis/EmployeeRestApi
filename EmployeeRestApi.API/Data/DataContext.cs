@@ -6,7 +6,6 @@ namespace EmployeeRestApi.Data;
 public class DataContext : DbContext
 {
     public DbSet<Employee> Employees { get; set; }
-    public DbSet<Address> Addresses { get; set; }
 
 
     public DataContext(DbContextOptions options) : base(options)
@@ -24,14 +23,12 @@ public class DataContext : DbContext
     {
         ConfigureEntityPrimaryKeys(modelBuilder);
         ConfigureEntityProperties(modelBuilder);
-        ConfigureEntityRelationships(modelBuilder);
         modelBuilder.ApplyUtcDateTimeConverter();
     }
 
     private static void ConfigureEntityPrimaryKeys(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Employee>().HasKey(e => e.Id);
-        modelBuilder.Entity<Address>().HasKey(a => a.AddressId);
     }
 
     private static void ConfigureEntityProperties(ModelBuilder modelBuilder)
@@ -64,27 +61,5 @@ public class DataContext : DbContext
         modelBuilder.Entity<Employee>()
             .Property(e => e.Role)
             .IsRequired();
-
-        modelBuilder.Entity<Address>()
-            .Property(a => a.City)
-            .IsRequired();
-
-        modelBuilder.Entity<Address>()
-            .Property(a => a.Street)
-            .IsRequired();
-
-        modelBuilder.Entity<Address>()
-            .Property(a => a.PostCode)
-            .IsRequired();
-    }
-
-    private static void ConfigureEntityRelationships(ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<Employee>()
-            .HasOne(e => e.HomeAddress)
-            .WithOne(a => a.Employee)
-            .HasForeignKey<Address>(a => a.EmployeeId);
-        modelBuilder.Entity<Employee>().ToTable("Employee");
-        modelBuilder.Entity<Address>().ToTable("Address");
     }
 }

@@ -31,7 +31,7 @@ public class EmployeeValidationService : IEmployeeValidationService
         {
             case true when ceoEmployee is null:
                 break;
-            case true when employeeDto.Manager is not null:
+            case true when employeeDto.ManagerId is not null:
                 errorMessage = "The CEO cannot have any managers.";
                 _logger.LogDebug(errorMessage);
                 return false;
@@ -127,7 +127,7 @@ public class EmployeeValidationService : IEmployeeValidationService
                 break;
             case true when ceoEmployee.Id == id:
                 break;
-            case true when employeeDto.Manager is not null:
+            case true when employeeDto.ManagerId is not null:
                 errorMessage = "The CEO cannot have any managers.";
                 _logger.LogDebug(errorMessage);
                 return false;

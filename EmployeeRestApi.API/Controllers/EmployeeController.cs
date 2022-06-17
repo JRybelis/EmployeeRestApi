@@ -85,7 +85,11 @@ public class EmployeeController : Controller
         {
             var employee = /*_mapper.Map<Employee>(employeeDto);*/ employeeDto.AsEntity();
             await _employeeRepository.Create(employee);
-            return Accepted(nameof(CreateEmployeeAsync));
+            
+            var updatedResource = await GetByIdAsync(employee.Id); 
+            var actionName = nameof(GetByIdAsync);
+            var routeValues = new {id = employee.Id};
+            return CreatedAtAction(actionName, routeValues, updatedResource);    
         }
 
         const string errorMessage = $"Validation of {nameof(employeeDto)} data failed. Database import aborted. Please review the error information above, rectify the data supplied and try again.";
@@ -103,8 +107,12 @@ public class EmployeeController : Controller
         {
             var employee = /*_mapper.Map<Employee>(employeeDto);*/ employeeDto.AsEntity();
             await _employeeRepository.Update(id, employee);
-        
-            return AcceptedAtAction(nameof(UpdateEmployeeAsync), new {id = employee.Id}, employeeDto);    
+
+            var updatedResource = await GetByIdAsync(id); 
+            var actionName = nameof(GetByIdAsync);
+            var routeValues = new {id};
+
+            return AcceptedAtAction(actionName, routeValues, updatedResource);
         }
         
         var errorMessage = $"Validation of {nameof(employeeDto)} data failed. Database update for supplied employee id:{id} aborted. Please review the error information above, rectify the data supplied and try again.";
@@ -123,8 +131,12 @@ public class EmployeeController : Controller
         {
             var employee = await _employeeRepository.GetById(id);
             await _employeeRepository.UpdateSalary(id, salary);
+            
+            var updatedResource = await GetByIdAsync(id); 
+            var actionName = nameof(GetByIdAsync);
+            var routeValues = new {id};
         
-            return AcceptedAtAction(nameof(UpdateSalaryAsync), new {id = employee.Id}, salary);    
+            return AcceptedAtAction(actionName, routeValues, updatedResource);    
         }
         
         var errorMessage = $"Validation of the provided salary data failed. Database update for supplied employee id:{id} aborted. Please review the error information above, rectify the data supplied and try again.";
