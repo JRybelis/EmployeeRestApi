@@ -1,117 +1,658 @@
 using System.Globalization;
-using EmployeeRestApi.Controllers;
-using EmployeeRestApi.Data;
 using EmployeeRestApi.Interfaces;
-using EmployeeRestApi.Repositories;
+using EmployeeRestApi.Services;
+using EmployeeRestApiLibrary.Dtos;
 using EmployeeRestApiLibrary.Enumerations;
 using EmployeeRestApiLibrary.Models;
-using EmployeeRestApiUnitTests.Validators;
-using FluentAssertions;
-using Microsoft.AspNetCore.Mvc;
+using EmployeeRestApiUnitTests.Helpers;
 using Moq;
 
 namespace EmployeeRestApiUnitTests.Controllers;
 
 public class TestEmployeeController : BaseTest
 {
-    /*[Test]
-    public async Task GetAll_OnSuccess_ReturnsStatusCode200()
-    {
-        // Arrange
-        var mockEmployeeRepository = new Mock<IEmployeeRepository>();
-        
-        mockEmployeeRepository
-            .Setup(service => service.GetAll())
-            .ReturnsAsync(EmployeesFixture.GetTestEmployees); // reik mocked auto repository ipaisyt cia
+    private Mock<IEmployeeRepository> _employeeRepository;
+    private Mock<IEmployeeValidationService> _employeeValidationService;
 
-        var sut = new EmployeeController(mockEmployeeRepository.Object);
-
-        // Act
-        var result = (OkObjectResult) await sut.GetAll();
-        
-        // Assert
-        result.StatusCode.Should().Be(200);
-    }*/
+    #region Ceo tests
 
     [Test]
-    public Task CreateEmployeeAsync_AttemptToAddASecondCeo()
+    public async Task CreateEmployeeAsync_AddCeoWithManagerId_ValidationFails()
+    {
+        #region Arrange
+
+        // Arrange
+        var listEmployees = new List<Employee>();
+        var employeeDto = new EmployeeDto()
+        {
+            FirstName = "Empl2Forename",
+            LastName = "Empl2Surname",
+            BirthDate = DateTime.Parse("1964-02-24 00:00:00"),
+            EmploymentCommencementDate = DateTime.ParseExact("2020-11-11 00:00:00", "yyyy-MM-dd HH:mm:ss",
+                CultureInfo.InvariantCulture),
+            ManagerId = 1,
+            HomeAddress = "Some st. 2, SomeCityB, LT-5005",
+            CurrentSalary = 360000,
+            Role = JobRole.ChiefExecutiveOfficer
+        };
+        
+        listEmployees.Add(new Employee
+        {
+            Id = 1,
+            FirstName = "TestForename1",
+            LastName = "TestSurname1",
+            BirthDate = DateTime.Parse("1998-02-12 20:00:00"),
+            EmploymentCommencementDate = DateTime.Parse("2020-01-01 00:10:00"),
+            ManagerId = null,
+            HomeAddress = "Some address 1",
+            CurrentSalary = 20000,
+            Role = JobRole.EngineerServer
+        });
+        listEmployees.Add(new Employee
+        {
+            Id = 2,
+            FirstName = "TestForename2",
+            LastName = "TestSurname2",
+            BirthDate = DateTime.Parse("1997-02-12 20:00:00"),
+            EmploymentCommencementDate = DateTime.Parse("2020-02-01 00:10:00"),
+            ManagerId = null,
+            HomeAddress = "Some address 2",
+            CurrentSalary = 20000,
+            Role = JobRole.EngineerDatabase
+        });
+        listEmployees.Add(new Employee
+        {
+            Id = 3,
+            FirstName = "TestForename3",
+            LastName = "TestSurname3",
+            BirthDate = DateTime.Parse("1999-02-12 20:00:00"),
+            EmploymentCommencementDate = DateTime.Parse("2020-05-01 00:10:00"),
+            ManagerId = null,
+            HomeAddress = "Some address 3",
+            CurrentSalary = 21000,
+            Role = JobRole.EngineerCloud
+        });
+
+        var employee = employeeDto.AsEntity();
+        _employeeRepository = new Mock<IEmployeeRepository>();
+        _employeeRepository.Setup(er => er.Create(employee)).ReturnsAsync(employee);
+        _employeeRepository.Setup(er => er.GetAll()).ReturnsAsync(listEmployees);
+        
+        var sut = new EmployeeValidationService();
+
+        #endregion
+        
+        // Act 
+        var result = await sut.IsDtoValidationSuccess(employeeDto, _employeeRepository.Object); 
+        
+        // Assert
+        Assert.That(result, Is.False);
+    }
+    
+    [Test]
+    public async Task CreateEmployeeAsync_AddASecondCeo_ValidationFails()
     {
         // Arrange
-        var employeeCeoAddress = new Address
-        {
-            Street = "Street1-1",
-            City = "City1",
-            PostCode = "Lt-00001"
-        };
-        var employee2Address = new Address
-        {
-            Street = "Street1-2",
-            City = "City1",
-            PostCode = "Lt-00002"
-        };
-
+        #region Arrange
+        var listEmployees = new List<Employee>();
+        
         var employeeCeo = new Employee
         {
             Id = 1,
             FirstName = "Empl1Forename",
             LastName = "Empl1Surname",
-            BirthDate = DateTime.ParseExact("1946/12/14 00:00:00", "yyyy/MM/dd HH:mm:ss", CultureInfo.InvariantCulture),
-            EmploymentCommencementDate = DateTime.ParseExact("2000/10/01 00:00:00", "yyyy/MM/dd HH:mm:ss",
+            BirthDate = DateTime.Parse("1946-12-14 00:00:00"),
+            EmploymentCommencementDate = DateTime.ParseExact("2000-10-01 00:00:00", "yyyy-MM-dd HH:mm:ss",
                 CultureInfo.InvariantCulture),
-            Manager = null,
-            HomeAddress = employeeCeoAddress,
+            ManagerId = null,
+            HomeAddress = "Some st. 5, SomeCityA, LT-5555",
             CurrentSalary = 160000,
             Role = JobRole.ChiefExecutiveOfficer
         };
+        listEmployees.Add(employeeCeo);
         
-        var employee2 = new Employee
+        listEmployees.Add(new Employee
+        {
+            Id = 1,
+            FirstName = "TestForename1",
+            LastName = "TestSurname1",
+            BirthDate = DateTime.Parse("1998-02-12 20:00:00"),
+            EmploymentCommencementDate = DateTime.Parse("2020-01-01 00:10:00"),
+            ManagerId = null,
+            HomeAddress = "Some address 1",
+            CurrentSalary = 20000,
+            Role = JobRole.EngineerServer
+        });
+        listEmployees.Add(new Employee
         {
             Id = 2,
+            FirstName = "TestForename2",
+            LastName = "TestSurname2",
+            BirthDate = DateTime.Parse("1997-02-12 20:00:00"),
+            EmploymentCommencementDate = DateTime.Parse("2020-02-01 00:10:00"),
+            ManagerId = null,
+            HomeAddress = "Some address 2",
+            CurrentSalary = 20000,
+            Role = JobRole.EngineerDatabase
+        });
+        listEmployees.Add(new Employee
+        {
+            Id = 3,
+            FirstName = "TestForename3",
+            LastName = "TestSurname3",
+            BirthDate = DateTime.Parse("1999-02-12 20:00:00"),
+            EmploymentCommencementDate = DateTime.Parse("2020-05-01 00:10:00"),
+            ManagerId = null,
+            HomeAddress = "Some address 3",
+            CurrentSalary = 21000,
+            Role = JobRole.EngineerCloud
+        });
+        
+        var employeeDto = new EmployeeDto()
+        {
             FirstName = "Empl2Forename",
             LastName = "Empl2Surname",
-            BirthDate = DateTime.ParseExact("1964/02/44 00:00:00", "yyyy/MM/dd HH:mm:ss", CultureInfo.InvariantCulture),
-            EmploymentCommencementDate = DateTime.ParseExact("2020/11/11 00:00:00", "yyyy/MM/dd HH:mm:ss",
+            BirthDate = DateTime.Parse/*Exact*/("1964-02-24 00:00:00"/*, "s", CultureInfo.InvariantCulture*/),
+            EmploymentCommencementDate = DateTime.ParseExact("2020-11-11 00:00:00", "yyyy-MM-dd HH:mm:ss",
                 CultureInfo.InvariantCulture),
-            Manager = null,
-            HomeAddress = employee2Address,
+            ManagerId = null,
+            HomeAddress = "Some st. 2, SomeCityB, LT-5005",
             CurrentSalary = 360000,
             Role = JobRole.ChiefExecutiveOfficer
         };
         
-        const string errorMessage = "There should be one CEO only and this position should have no managers.";
-        employeeCeo = new EmployeeRepository(context).Create(employeeCeo).Result;
-        // Act 
-        var validationResult = new CreateEmployeeValidator().Validate(employee2);
-        Assert.Multiple(() =>
-        {
-            // Assert
-            Assert.That(validationResult.IsValid, Is.False);
-            Assert.That(validationResult.Errors.Single().ErrorMessage, Is.EqualTo(errorMessage));
-        });
+        var employee = employeeDto.AsEntity();
+        _employeeRepository = new Mock<IEmployeeRepository>();
+        _employeeRepository.Setup(er => er.Create(employee)).ReturnsAsync(employee);
+        _employeeRepository.Setup(er => er.GetAll()).ReturnsAsync(listEmployees);
         
-        return Task.CompletedTask;
-    }
-
-    /*[Test]
-    public void EmployeeFirstName_Always_CannotBeUsedAsLastName()
-    {
-        // Arrange
-        var employee = new Employee()
-        {
-            FirstName = "Forename",
-            LastName = "Surname"
-        };
-
-        // Act
-        var validationResult = new EmployeeCreateValidator().Validate(Employee);
+        var sut = new EmployeeValidationService();
+        #endregion
+        
+        // Act 
+        var result = await sut.IsDtoValidationSuccess(employeeDto, _employeeRepository.Object);
         
         // Assert
-        Assert.True(validationResult.IsValid);
+        Assert.That(result, Is.False);
+    }
+    
+    [Test]
+    public async Task CreateEmployeeAsync_AddAFirstCeo_ValidationPasses()
+    {
+        // Arrange
+        #region Arrange
+        var listEmployees = new List<Employee>();
         
-        if (!validationResult.IsValid) return;
+        listEmployees.Add(new Employee
+        {
+            Id = 1,
+            FirstName = "TestForename1",
+            LastName = "TestSurname1",
+            BirthDate = DateTime.Parse("1998-02-12 20:00:00"),
+            EmploymentCommencementDate = DateTime.Parse("2020-01-01 00:10:00"),
+            ManagerId = null,
+            HomeAddress = "Some address 1",
+            CurrentSalary = 20000,
+            Role = JobRole.EngineerServer
+        });
+        listEmployees.Add(new Employee
+        {
+            Id = 2,
+            FirstName = "TestForename2",
+            LastName = "TestSurname2",
+            BirthDate = DateTime.Parse("1997-02-12 20:00:00"),
+            EmploymentCommencementDate = DateTime.Parse("2020-02-01 00:10:00"),
+            ManagerId = null,
+            HomeAddress = "Some address 2",
+            CurrentSalary = 20000,
+            Role = JobRole.EngineerDatabase
+        });
+        listEmployees.Add(new Employee
+        {
+            Id = 3,
+            FirstName = "TestForename3",
+            LastName = "TestSurname3",
+            BirthDate = DateTime.Parse("1999-02-12 20:00:00"),
+            EmploymentCommencementDate = DateTime.Parse("2020-05-01 00:10:00"),
+            ManagerId = null,
+            HomeAddress = "Some address 3",
+            CurrentSalary = 21000,
+            Role = JobRole.EngineerCloud
+        });
+        
+        var employeeDto = new EmployeeDto()
+        {
+            FirstName = "Empl2Forename",
+            LastName = "Empl2Surname",
+            BirthDate = DateTime.Parse("1964-02-24 00:00:00"),
+            EmploymentCommencementDate = DateTime.ParseExact("2020-11-11 00:00:00", "yyyy-MM-dd HH:mm:ss",
+                CultureInfo.InvariantCulture),
+            ManagerId = null,
+            HomeAddress = "Some st. 2, SomeCityB, LT-5005",
+            CurrentSalary = 360000,
+            Role = JobRole.ChiefExecutiveOfficer
+        };
+        
+        var employee = employeeDto.AsEntity();
+        _employeeRepository = new Mock<IEmployeeRepository>();
+        _employeeRepository.Setup(er => er.Create(employee)).ReturnsAsync(employee);
+        _employeeRepository.Setup(er => er.GetAll()).ReturnsAsync(listEmployees);
+        
+        var sut = new EmployeeValidationService();
+        #endregion
+        
+        // Act 
+        var result = await sut.IsDtoValidationSuccess(employeeDto, _employeeRepository.Object);
+        
+        // Assert
+        Assert.That(result, Is.True);
+    }
 
-        Employee = new EmployeeRepository(Context).Post(employee);
+    #endregion
+
+    #region Name check tests
+    
+    [Test]
+    public async Task CreateEmployeeAsync_EmployeeFirstNameSameAsLastName_ValidationFails()
+    {
+        // Arrange
+        #region Arrange
+       var employeeDto = new EmployeeDto()
+        {
+            FirstName = "Empl2Forename",
+            LastName = "Empl2Forename",
+            BirthDate = DateTime.Parse("1964-02-24 00:00:00"),
+            EmploymentCommencementDate = DateTime.ParseExact("2020-11-11 00:00:00", "yyyy-MM-dd HH:mm:ss",
+                CultureInfo.InvariantCulture),
+            ManagerId = null,
+            HomeAddress = "Some st. 2, SomeCityB, LT-5005",
+            CurrentSalary = 360000,
+            Role = JobRole.ChiefExecutiveOfficer
+        };
         
-        Assert.AreNotEqual(employee.FirstName, employee.LastName);
-    }*/
+        var employee = employeeDto.AsEntity();
+        _employeeRepository = new Mock<IEmployeeRepository>();
+        _employeeRepository.Setup(er => er.Create(employee)).ReturnsAsync(employee);
+
+        var sut = new EmployeeValidationService();
+        #endregion
+        
+        // Act
+        var result = await sut.IsDtoValidationSuccess(employeeDto, _employeeRepository.Object);
+        
+        // Assert
+        Assert.That(result, Is.False);
+    }
+    
+    [Test]
+    public async Task CreateEmployeeAsync_EmployeeLastNameSameAsFirstName_ValidationFails()
+    {
+        // Arrange
+        #region Arrange
+        var employeeDto = new EmployeeDto()
+        {
+            FirstName = "Empl2Surname",
+            LastName = "Empl2Surname",
+            BirthDate = DateTime.Parse("1964-02-24 00:00:00"),
+            EmploymentCommencementDate = DateTime.ParseExact("2020-11-11 00:00:00", "yyyy-MM-dd HH:mm:ss",
+                CultureInfo.InvariantCulture),
+            ManagerId = null,
+            HomeAddress = "Some st. 2, SomeCityB, LT-5005",
+            CurrentSalary = 360000,
+            Role = JobRole.ChiefExecutiveOfficer
+        };
+        
+        var employee = employeeDto.AsEntity();
+        _employeeRepository = new Mock<IEmployeeRepository>();
+        _employeeRepository.Setup(er => er.Create(employee)).ReturnsAsync(employee);
+
+        var sut = new EmployeeValidationService();
+        #endregion
+        
+        // Act
+        var result = await sut.IsDtoValidationSuccess(employeeDto, _employeeRepository.Object);
+        
+        // Assert
+        Assert.That(result, Is.False);
+    }
+    
+    [Test]
+    public async Task CreateEmployeeAsync_EmployeeFirstNameDistinctFromLastName_ValidationPasses()
+    {
+        // Arrange
+        #region Arrange
+        var employeeDto = new EmployeeDto()
+        {
+            FirstName = "Empl2Forename",
+            LastName = "Empl2Surname",
+            BirthDate = DateTime.Parse("1964-02-24 00:00:00"),
+            EmploymentCommencementDate = DateTime.ParseExact("2020-11-11 00:00:00", "yyyy-MM-dd HH:mm:ss",
+                CultureInfo.InvariantCulture),
+            ManagerId = null,
+            HomeAddress = "Some st. 2, SomeCityB, LT-5005",
+            CurrentSalary = 360000,
+            Role = JobRole.ChiefExecutiveOfficer
+        };
+        
+        var employee = employeeDto.AsEntity();
+        _employeeRepository = new Mock<IEmployeeRepository>();
+        _employeeRepository.Setup(er => er.Create(employee)).ReturnsAsync(employee);
+
+        var sut = new EmployeeValidationService();
+        #endregion
+        
+        // Act
+        var result = await sut.IsDtoValidationSuccess(employeeDto, _employeeRepository.Object);
+        
+        // Assert
+        Assert.That(result, Is.True);
+    }
+    #endregion
+
+    #region Age check tests
+
+    [Test]
+    public async Task CreateEmployeeAsync_EmployeeUnderAllowedAge_ValidationFails()
+    {
+        // Arrange
+        #region Arrange
+        var employeeDto = new EmployeeDto()
+        {
+            FirstName = "Empl2Forename",
+            LastName = "Empl2Surname",
+            BirthDate = DateTime.Parse("2005-06-16 00:00:00"),
+            EmploymentCommencementDate = DateTime.ParseExact("2020-11-11 00:00:00", "yyyy-MM-dd HH:mm:ss",
+                CultureInfo.InvariantCulture),
+            ManagerId = null,
+            HomeAddress = "Some st. 2, SomeCityB, LT-5005",
+            CurrentSalary = 360000,
+            Role = JobRole.ChiefExecutiveOfficer
+        };
+        
+        var employee = employeeDto.AsEntity();
+        _employeeRepository = new Mock<IEmployeeRepository>();
+        _employeeRepository.Setup(er => er.Create(employee)).ReturnsAsync(employee);
+
+        var sut = new EmployeeValidationService();
+        #endregion
+        
+        // Act
+        var result = await sut.IsDtoValidationSuccess(employeeDto, _employeeRepository.Object);
+        
+        // Assert
+        Assert.That(result, Is.False);
+    }
+
+    [Test]
+    public async Task CreateEmployeeAsync_EmployeeOverAllowedAge_ValidationFails()
+    {
+        // Arrange
+        #region Arrange
+        var employeeDto = new EmployeeDto()
+        {
+            FirstName = "Empl2Forename",
+            LastName = "Empl2Surname",
+            BirthDate = DateTime.Parse("1951-06-16 00:00:00"),
+            EmploymentCommencementDate = DateTime.ParseExact("2020-11-11 00:00:00", "yyyy-MM-dd HH:mm:ss",
+                CultureInfo.InvariantCulture),
+            ManagerId = null,
+            HomeAddress = "Some st. 2, SomeCityB, LT-5005",
+            CurrentSalary = 360000,
+            Role = JobRole.ChiefExecutiveOfficer
+        };
+        
+        var employee = employeeDto.AsEntity();
+        _employeeRepository = new Mock<IEmployeeRepository>();
+        _employeeRepository.Setup(er => er.Create(employee)).ReturnsAsync(employee);
+
+        var sut = new EmployeeValidationService();
+        #endregion
+        
+        // Act
+        var result = await sut.IsDtoValidationSuccess(employeeDto, _employeeRepository.Object);
+        
+        // Assert
+        Assert.That(result, Is.False);
+    }
+    
+    [TestCase("1953-06-16 00:00:00")]
+    [TestCase("1962-06-16 00:00:00")]
+    [TestCase("1972-06-16 00:00:00")]
+    [TestCase("1982-06-16 00:00:00")]
+    [TestCase("1992-06-16 00:00:00")]
+    [TestCase("1999-06-16 00:00:00")]
+    [TestCase("2000-06-16 00:00:00")]
+    [TestCase("2002-06-16 00:00:00")]
+    [TestCase("2004-06-16 00:00:00")]
+    public async Task CreateEmployeeAsync_EmployeeOlderThan18YoungerThan70_ValidationPasses(string birthDate)
+    {
+        // Arrange
+        #region Arrange
+        var employeeDto = new EmployeeDto()
+        {
+            FirstName = "Empl2Forename",
+            LastName = "Empl2Surname",
+            BirthDate = DateTime.Parse(birthDate),
+            EmploymentCommencementDate = DateTime.ParseExact("2020-11-11 00:00:00", "yyyy-MM-dd HH:mm:ss",
+                CultureInfo.InvariantCulture),
+            ManagerId = null,
+            HomeAddress = "Some st. 2, SomeCityB, LT-5005",
+            CurrentSalary = 360000,
+            Role = JobRole.ChiefExecutiveOfficer
+        };
+        
+        var employee = employeeDto.AsEntity();
+        _employeeRepository = new Mock<IEmployeeRepository>();
+        _employeeRepository.Setup(er => er.Create(employee)).ReturnsAsync(employee);
+
+        var sut = new EmployeeValidationService();
+        #endregion
+        
+        // Act
+        var result = await sut.IsDtoValidationSuccess(employeeDto, _employeeRepository.Object);
+        
+        // Assert
+        Assert.That(result, Is.True);
+    }
+    #endregion
+
+    #region Employment commencement date tests
+
+    [TestCase("1953-06-16 00:00:00")]
+    [TestCase("1962-06-16 00:00:00")]
+    [TestCase("1972-06-16 00:00:00")]
+    [TestCase("1982-06-16 00:00:00")]
+    [TestCase("1992-06-16 00:00:00")]
+    [TestCase("1999-06-16 00:00:00")]
+    [TestCase("1999-12-31 23:59:59")]
+    public async Task CreateEmployeeAsync_EmployeeStartedBefore20000101_ValidationFails(string startDate)
+    {
+        // Arrange
+
+        #region Arrange
+
+        var employeeDto = new EmployeeDto()
+        {
+            FirstName = "Empl2Forename",
+            LastName = "Empl2Surname",
+            BirthDate = DateTime.Parse("1972-06-16 00:00:00"),
+            EmploymentCommencementDate = DateTime.ParseExact(startDate, "yyyy-MM-dd HH:mm:ss",
+                CultureInfo.InvariantCulture),
+            ManagerId = null,
+            HomeAddress = "Some st. 2, SomeCityB, LT-5005",
+            CurrentSalary = 360000,
+            Role = JobRole.ChiefExecutiveOfficer
+        };
+
+        var employee = employeeDto.AsEntity();
+        _employeeRepository = new Mock<IEmployeeRepository>();
+        _employeeRepository.Setup(er => er.Create(employee)).ReturnsAsync(employee);
+
+        var sut = new EmployeeValidationService();
+
+        #endregion
+
+        // Act
+        var result = await sut.IsDtoValidationSuccess(employeeDto, _employeeRepository.Object);
+
+        // Assert
+        Assert.That(result, Is.False);
+    }
+
+    [TestCase("2000-01-01 00:00:01")]
+    [TestCase("2000-10-01 00:00:01")]
+    [TestCase("2000-12-01 00:00:01")]
+    [TestCase("2001-01-01 00:00:01")]
+    [TestCase("2002-01-01 00:00:01")]
+    [TestCase("2020-01-01 00:00:01")]
+    public async Task CreateEmployeeAsync_EmployeeStartedAfter20000101_ValidationPasses(string startDate)
+    {
+        // Arrange
+        #region Arrange
+        var employeeDto = new EmployeeDto()
+        {
+            FirstName = "Empl2Forename",
+            LastName = "Empl2Surname",
+            BirthDate = DateTime.Parse("1972-06-16 00:00:00"),
+            EmploymentCommencementDate = DateTime.ParseExact(startDate, "yyyy-MM-dd HH:mm:ss",
+                CultureInfo.InvariantCulture),
+            ManagerId = null,
+            HomeAddress = "Some st. 2, SomeCityB, LT-5005",
+            CurrentSalary = 360000,
+            Role = JobRole.ChiefExecutiveOfficer
+        };
+    
+        var employee = employeeDto.AsEntity();
+        _employeeRepository = new Mock<IEmployeeRepository>();
+        _employeeRepository.Setup(er => er.Create(employee)).ReturnsAsync(employee);
+
+        var sut = new EmployeeValidationService();
+        #endregion
+    
+        // Act
+        var result = await sut.IsDtoValidationSuccess(employeeDto, _employeeRepository.Object);
+    
+        // Assert
+        Assert.That(result, Is.True);
+    }
+    
+    [TestCase("2023-01-01 00:00:01")]
+    [TestCase("2024-10-01 00:00:01")]
+    [TestCase("2025-12-01 00:00:01")]
+    [TestCase("2031-01-01 00:00:01")]
+    [TestCase("2022-07-01 00:00:01")]
+    [TestCase("2050-01-01 00:00:01")]
+    public async Task CreateEmployeeAsync_EmployeeStartedAfterCurrentDate_ValidationFails(string startDate)
+    {
+        // Arrange
+        #region Arrange
+        var employeeDto = new EmployeeDto()
+        {
+            FirstName = "Empl2Forename",
+            LastName = "Empl2Surname",
+            BirthDate = DateTime.Parse("1972-06-16 00:00:00"),
+            EmploymentCommencementDate = DateTime.ParseExact(startDate, "yyyy-MM-dd HH:mm:ss",
+                CultureInfo.InvariantCulture),
+            ManagerId = null,
+            HomeAddress = "Some st. 2, SomeCityB, LT-5005",
+            CurrentSalary = 360000,
+            Role = JobRole.ChiefExecutiveOfficer
+        };
+    
+        var employee = employeeDto.AsEntity();
+        _employeeRepository = new Mock<IEmployeeRepository>();
+        _employeeRepository.Setup(er => er.Create(employee)).ReturnsAsync(employee);
+
+        var sut = new EmployeeValidationService();
+        #endregion
+    
+        // Act
+        var result = await sut.IsDtoValidationSuccess(employeeDto, _employeeRepository.Object);
+    
+        // Assert
+        Assert.That(result, Is.False);
+    }
+
+    #endregion
+
+    #region Salary check tests
+
+    [TestCase(20)]
+    [TestCase(10)]
+    [TestCase(1)]
+    [TestCase(0.1)]
+    [TestCase(0.01)]
+    [TestCase(11111111)]
+    [TestCase(400000000)]
+    public async Task CreateEmployeeAsync_EmployeeSalaryIsPositive_ValidationPasses(decimal salary)
+    {
+        // Arrange
+        #region Arrange
+        var employeeDto = new EmployeeDto()
+        {
+            FirstName = "Empl2Forename",
+            LastName = "Empl2Surname",
+            BirthDate = DateTime.Parse("1972-06-16 00:00:00"),
+            EmploymentCommencementDate = DateTime.ParseExact("2003-01-01 00:00:01", "yyyy-MM-dd HH:mm:ss",
+                CultureInfo.InvariantCulture),
+            ManagerId = null,
+            HomeAddress = "Some st. 2, SomeCityB, LT-5005",
+            CurrentSalary = salary,
+            Role = JobRole.ChiefExecutiveOfficer
+        };
+    
+        var employee = employeeDto.AsEntity();
+        _employeeRepository = new Mock<IEmployeeRepository>();
+        _employeeRepository.Setup(er => er.Create(employee)).ReturnsAsync(employee);
+
+        var sut = new EmployeeValidationService();
+        #endregion
+    
+        // Act
+        var result = await sut.IsDtoValidationSuccess(employeeDto, _employeeRepository.Object);
+    
+        // Assert
+        Assert.That(result, Is.True);
+    }
+    
+    [TestCase(-20)]
+    [TestCase(-10)]
+    [TestCase(-1)]
+    [TestCase(-0.1)]
+    [TestCase(-0.01)]
+    [TestCase(-11111111)]
+    [TestCase(-400000000)]
+    public async Task CreateEmployeeAsync_EmployeeSalaryIsNegative_ValidationFails(decimal salary)
+    {
+        // Arrange
+        #region Arrange
+        var employeeDto = new EmployeeDto()
+        {
+            FirstName = "Empl2Forename",
+            LastName = "Empl2Surname",
+            BirthDate = DateTime.Parse("1972-06-16 00:00:00"),
+            EmploymentCommencementDate = DateTime.ParseExact("2003-01-01 00:00:01", "yyyy-MM-dd HH:mm:ss",
+                CultureInfo.InvariantCulture),
+            ManagerId = null,
+            HomeAddress = "Some st. 2, SomeCityB, LT-5005",
+            CurrentSalary = salary,
+            Role = JobRole.ChiefExecutiveOfficer
+        };
+    
+        var employee = employeeDto.AsEntity();
+        _employeeRepository = new Mock<IEmployeeRepository>();
+        _employeeRepository.Setup(er => er.Create(employee)).ReturnsAsync(employee);
+
+        var sut = new EmployeeValidationService();
+        #endregion
+    
+        // Act
+        var result = await sut.IsDtoValidationSuccess(employeeDto, _employeeRepository.Object);
+    
+        // Assert
+        Assert.That(result, Is.False);
+    }
+
+    #endregion
+    
 }

@@ -20,7 +20,7 @@ public class EmployeeValidationService : IEmployeeValidationService
     public async Task<bool> IsDtoValidationSuccess(EmployeeDto employeeDto, IEmployeeRepository repository)
     {
         string errorMessage;
-
+        
         #region CEO check
 
         var allEmployees = await repository.GetAll();
@@ -29,16 +29,16 @@ public class EmployeeValidationService : IEmployeeValidationService
         
         switch (isFormSuppliedEmployeeCeo)
         {
-            case true when ceoEmployee is null:
-                break;
             case true when employeeDto.ManagerId is not null:
                 errorMessage = "The CEO cannot have any managers.";
                 _logger.LogDebug(errorMessage);
                 return false;
-            case true when employeeDto.BirthDate == ceoEmployee.BirthDate &&
-                           employeeDto.LastName == ceoEmployee.LastName &&
-                           employeeDto.FirstName == ceoEmployee.FirstName &&
-                           employeeDto.EmploymentCommencementDate ==
+            case true when ceoEmployee is null:
+                break;
+            case true when employeeDto.BirthDate != ceoEmployee.BirthDate &&
+                           employeeDto.LastName != ceoEmployee.LastName &&
+                           employeeDto.FirstName != ceoEmployee.FirstName &&
+                           employeeDto.EmploymentCommencementDate !=
                            ceoEmployee.EmploymentCommencementDate:
                 errorMessage
                     = "There is already a CEO active in the company's organisational structure. There can only be one CEO of the company.";
