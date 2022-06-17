@@ -76,7 +76,6 @@ public class DataContext : DbContext
         modelBuilder.Entity<Address>()
             .Property(a => a.PostCode)
             .IsRequired();
-
     }
 
     private static void ConfigureEntityRelationships(ModelBuilder modelBuilder)

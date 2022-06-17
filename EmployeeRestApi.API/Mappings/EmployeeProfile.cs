@@ -20,9 +20,6 @@ public class EmployeeProfile : Profile
             .ForMember(dest => dest.PostCode,
                 opt => opt.MapFrom(src => $"{src.PostCode}")
             )
-            /*.ForMember(dest => dest.Employee, 
-                src => src.Ignore()
-            )*/
             .ForMember(dest => dest.AddressId, 
                 src => src.Ignore()
             )
@@ -47,6 +44,9 @@ public class EmployeeProfile : Profile
                 dest => dest.EmploymentCommencementDate, opt => opt.MapFrom(src => $"{src.EmploymentCommencementDate}")
             )
             .ForMember(
+                dest => dest.Manager, opt => opt.Condition((src, dest, srcMember) => srcMember != null)    
+            )
+            .ForMember(
                 dest => dest.Manager, opt => opt.MapFrom(src => $"{src.Manager}")
             )
             .ForMember(
@@ -58,9 +58,7 @@ public class EmployeeProfile : Profile
             .ForMember(
                 dest => dest.Role, opt => opt.MapFrom(src => $"{src.Role}")
             )
-            /*.ForMember(dest => dest.Id, 
-                src => src.Ignore()
-            )*/;
+            ;
     }
 
 }
