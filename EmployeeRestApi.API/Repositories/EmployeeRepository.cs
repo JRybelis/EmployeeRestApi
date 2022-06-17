@@ -103,7 +103,14 @@ public class EmployeeRepository : IEmployeeRepository
         existingEmployee.LastName = employee.LastName;
         existingEmployee.BirthDate = employee.BirthDate;
         existingEmployee.EmploymentCommencementDate = employee.EmploymentCommencementDate;
-        existingEmployee.HomeAddress = employee.HomeAddress;
+        existingEmployee.HomeAddress = new Address
+        {
+            EmployeeId = existingEmployee.Id
+            , Employee = existingEmployee
+            , Street = employee.HomeAddress.Street
+            , City = employee.HomeAddress.City
+            , PostCode = employee.HomeAddress.PostCode
+        };
         existingEmployee.Manager = employee.Manager;
         existingEmployee.Role = employee.Role;
         existingEmployee.CurrentSalary = employee.CurrentSalary;

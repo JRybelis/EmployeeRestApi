@@ -1,5 +1,6 @@
 using AutoMapper;
 using EmployeeRestApi.Interfaces;
+using EmployeeRestApi.Mappings;
 using EmployeeRestApiLibrary.Dtos;
 using EmployeeRestApiLibrary.Enumerations;
 using EmployeeRestApiLibrary.Models;
@@ -31,7 +32,9 @@ public class EmployeeController : Controller
     public async Task<IEnumerable<EmployeeDto>> GetAllAsync()
     {
         var employees = await _employeeRepository.GetAll();
-        return _mapper.Map<IEnumerable<EmployeeDto>>(employees);
+        //return _mapper.Map<IEnumerable<EmployeeDto>>(employees);
+
+        return employees.Select(employee => employee.AsDto()).ToList();
     }
     
     [Route("getAll/byManager/{id:long}")]
@@ -39,18 +42,22 @@ public class EmployeeController : Controller
     public async Task<IEnumerable<EmployeeDto>> GetAllByManagerIdAsync(long id)
     {
         var employees = await _employeeRepository.GetAllByManagerId(id);
-        return _mapper.Map<IEnumerable<EmployeeDto>>(employees);
+        //return _mapper.Map<IEnumerable<EmployeeDto>>(employees);
+        
+        return employees.Select(employee => employee.AsDto()).ToList();
     }
     
     [Route("getAll/byName&BirthDateInterval")]
     [HttpGet]
-    public async Task<IEnumerable<EmployeeDto>> GetByNameAndBirthDateIntervalAsync(string lastName
+    public async Task<EmployeeDto> GetByNameAndBirthDateIntervalAsync(string lastName
         , DateTime birthDateRangeMin, DateTime birthDateRangeMax)
     {
-        var employees
+        var employee
             = await _employeeRepository.GetByNameAndBirthdateInterval(lastName, birthDateRangeMin
                 , birthDateRangeMax);
-        return _mapper.Map<IEnumerable<EmployeeDto>>(employees);
+        //return _mapper.Map<IEnumerable<EmployeeDto>>(employees);
+
+        return employee.AsDto();
     }
     
     [Route("get/{id:long}")]
@@ -58,7 +65,8 @@ public class EmployeeController : Controller
     public async Task<EmployeeDto> GetByIdAsync(long id)
     {
         var employee = await _employeeRepository.GetById(id);
-        return _mapper.Map<EmployeeDto>(employee);
+        //return _mapper.Map<EmployeeDto>(employee);
+        return employee.AsDto();
     }
     
     [Route("getStatistics/byRole")]
@@ -75,7 +83,7 @@ public class EmployeeController : Controller
         var validationSuccess = await _employeeValidationService.IsDtoValidationSuccess(employeeDto, _employeeRepository);
         if (validationSuccess)
         {
-            var employee = _mapper.Map<Employee>(employeeDto);
+            var employee = /*_mapper.Map<Employee>(employeeDto);*/ employeeDto.AsEntity();
             await _employeeRepository.Create(employee);
             return Accepted(nameof(CreateEmployeeAsync));
         }
@@ -90,10 +98,10 @@ public class EmployeeController : Controller
     [HttpPut]
     public async Task <IActionResult> UpdateEmployeeAsync([FromRoute] long id, [FromBody] EmployeeDto employeeDto)
     {
-        var validationSuccess = await _employeeValidationService.IsDtoValidationSuccess(employeeDto, _employeeRepository);
+        var validationSuccess = await _employeeValidationService.IsDtoValidationSuccess(employeeDto, _employeeRepository, id);
         if (validationSuccess)
         {
-            var employee = _mapper.Map<Employee>(employeeDto);
+            var employee = /*_mapper.Map<Employee>(employeeDto);*/ employeeDto.AsEntity();
             await _employeeRepository.Update(id, employee);
         
             return AcceptedAtAction(nameof(UpdateEmployeeAsync), new {id = employee.Id}, employeeDto);    

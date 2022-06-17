@@ -15,6 +15,8 @@ public class EmployeeValidationService : IEmployeeValidationService
         _logger = _loggerFactory.CreateLogger(nameof(EmployeeValidationService));
     }
 
+    #region Dto validation for create method
+
     public async Task<bool> IsDtoValidationSuccess(EmployeeDto employeeDto, IEmployeeRepository repository)
     {
         string errorMessage;
@@ -105,6 +107,105 @@ public class EmployeeValidationService : IEmployeeValidationService
 
         return true;
     }
+
+    #endregion
+    #region Dto validation for update method
+
+    public async Task<bool> IsDtoValidationSuccess(EmployeeDto employeeDto, IEmployeeRepository repository, long id)
+    {
+        string errorMessage;
+
+        #region CEO check
+
+        var allEmployees = await repository.GetAll();
+        var ceoEmployee = allEmployees.FirstOrDefault(empl => empl.Role == JobRole.ChiefExecutiveOfficer);
+        var isFormSuppliedEmployeeCeo = await IsJobRoleTheCeo(employeeDto.Role);
+        
+        switch (isFormSuppliedEmployeeCeo)
+        {
+            case true when ceoEmployee is null:
+                break;
+            case true when ceoEmployee.Id == id:
+                break;
+            case true when employeeDto.Manager is not null:
+                errorMessage = "The CEO cannot have any managers.";
+                _logger.LogDebug(errorMessage);
+                return false;
+            case true when employeeDto.BirthDate == ceoEmployee.BirthDate &&
+                           employeeDto.LastName == ceoEmployee.LastName &&
+                           employeeDto.FirstName == ceoEmployee.FirstName &&
+                           employeeDto.EmploymentCommencementDate ==
+                           ceoEmployee.EmploymentCommencementDate:
+                errorMessage
+                    = "There is already a CEO active in the company's organisational structure. There can only be one CEO of the company.";
+                _logger.LogDebug(errorMessage);
+                return false;
+        }
+
+        #endregion
+
+        #region Name check
+
+        if (await IsFirstNameAndLastNameTheSame(employeeDto.FirstName, employeeDto.LastName))
+        {
+            errorMessage
+                = "The employee surname cannot be the same as his or her forename.";
+            _logger.LogDebug(errorMessage);
+            return false;
+        }
+
+        #endregion
+
+        #region Age check
+
+        if (!await IsEmployeeBetweenTheAgesOf18And70(employeeDto.BirthDate))
+        {
+            errorMessage
+                = "The employee cannot be younger than 18 or older than 70 years old.";
+            _logger.LogDebug(errorMessage);
+            return false;
+        }
+
+        #endregion
+
+        #region Start date check
+
+        if (!await IsEmploymentCommencementDateLaterThan20000101(employeeDto
+                .EmploymentCommencementDate))
+        {
+            errorMessage
+                = "The employee cannot have started to work for this company prior to 2000-01-01.";
+            _logger.LogDebug(errorMessage);
+            return false;
+        }
+
+        if (await IsEmploymentCommencementDateLaterThanPresent(employeeDto.EmploymentCommencementDate))
+        {
+            errorMessage
+                = "The employee can only be registered as a current employee if his or her employment commencement date is not in the future.";
+            _logger.LogDebug(errorMessage);
+            return false;
+        }
+
+        #endregion
+
+        #region Salary check
+
+        if (!await IsCurrentSalaryAPositiveAmount(employeeDto.CurrentSalary))
+        {
+            errorMessage
+                = "The employee cannot have a salary that is a negative amount.";
+            _logger.LogDebug(errorMessage);
+            return false;
+        }
+
+        #endregion
+
+        return true;
+    }
+
+    #endregion
+    
 
     public Task<bool> IsJobRoleTheCeo(JobRole jobRole)
     {
