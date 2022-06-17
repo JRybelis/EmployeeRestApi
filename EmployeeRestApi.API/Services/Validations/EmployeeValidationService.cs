@@ -27,6 +27,8 @@ public class EmployeeValidationService : IEmployeeValidationService
         
         switch (isFormSuppliedEmployeeCeo)
         {
+            case true when ceoEmployee is null:
+                break;
             case true when employeeDto.Manager is not null:
                 errorMessage = "The CEO cannot have any managers.";
                 _logger.LogDebug(errorMessage);
@@ -116,8 +118,7 @@ public class EmployeeValidationService : IEmployeeValidationService
 
     public Task<bool> IsEmployeeBetweenTheAgesOf18And70(DateTime birthDate)
     {
-        var birthDateSupplied = DateTime.ParseExact(birthDate.ToString(), "yyyy-MM-dd HH:mm:ss"
-            , CultureInfo.InvariantCulture).Date;
+        var birthDateSupplied = birthDate.Date;
         var currentDate = DateTime.Today.Date;
         var ageInYears = (currentDate - birthDateSupplied).TotalDays / 365;
 
@@ -126,8 +127,7 @@ public class EmployeeValidationService : IEmployeeValidationService
 
     public Task<bool> IsEmploymentCommencementDateLaterThan20000101(DateTime startDate)
     {
-        var startDateSupplied = DateTime.ParseExact(startDate.ToString(), "yyyy-MM-dd HH:mm:ss"
-            , CultureInfo.InvariantCulture).Date;
+        var startDateSupplied = startDate;
         var companyEmployeeRecordsStartDate = DateTime.ParseExact("2000-01-01 00:00:00", "yyyy-MM-dd HH:mm:ss"
             , CultureInfo.InvariantCulture).Date;
 
@@ -136,8 +136,7 @@ public class EmployeeValidationService : IEmployeeValidationService
 
     public Task<bool> IsEmploymentCommencementDateLaterThanPresent(DateTime startDate)
     {
-        var startDateSupplied = DateTime.ParseExact(startDate.ToString(), "yyyy-MM-dd HH:mm:ss"
-            , CultureInfo.InvariantCulture).Date;
+        var startDateSupplied = startDate;
         var currentDate = DateTime.Today.Date;
         
         return Task.FromResult(startDateSupplied > currentDate);
