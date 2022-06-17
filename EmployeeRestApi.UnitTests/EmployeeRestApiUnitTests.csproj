@@ -31,4 +31,8 @@
     <ProjectReference Include="..\EmployeeRestApi.LIB\EmployeeRestApiLibrary.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Validators" />
+  </ItemGroup>
+
 </Project>

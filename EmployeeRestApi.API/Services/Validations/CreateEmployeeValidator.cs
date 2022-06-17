@@ -3,7 +3,7 @@ using EmployeeRestApiLibrary.Enumerations;
 using EmployeeRestApiLibrary.Models;
 using FluentValidation;
 
-namespace EmployeeRestApiUnitTests.Validators;
+namespace EmployeeRestApi.Services.Validations;
 
 public class CreateEmployeeValidator : AbstractValidator<Employee>
 {
@@ -50,21 +50,16 @@ public class CreateEmployeeValidator : AbstractValidator<Employee>
             .GreaterThanOrEqualTo(0)
             .WithErrorCode("Salary cannot be a negative amount.");
 
-        RuleFor(empl => empl.Role)
+        RuleFor(empl => empl)
             .Cascade(CascadeMode.Stop)
             .NotEmpty()
             .WithErrorCode("Mandatory field missing")
-            .Must(IsJobRoleTheCeo)
-            .WithErrorCode("There should be one CEO only and this position should have no managers.");
+            .When(empl => empl.Role == JobRole.ChiefExecutiveOfficer).Must(empl => empl.ManagerId == null)
+            .WithErrorCode("The CEO position should have no managers.");
 
         RuleFor(empl => empl.HomeAddress)
             .Cascade(CascadeMode.Stop)
             .NotEmpty()
             .WithErrorCode("Mandatory field missing");
-    }
-    
-    private static bool IsJobRoleTheCeo(JobRole jobRole)
-    {
-        return jobRole == JobRole.ChiefExecutiveOfficer;
     }
 }

@@ -16,13 +16,13 @@ public class EmployeeController : Controller
     private readonly ILoggerFactory _loggerFactory = new LoggerFactory();
     private readonly IEmployeeRepository _employeeRepository;
     private readonly IEmployeeValidationService _employeeValidationService;
-    private readonly IMapper _mapper;
+    // private readonly IMapper _mapper;
     
-    public EmployeeController(IEmployeeRepository employeeRepository, IMapper mapper
+    public EmployeeController(IEmployeeRepository employeeRepository/*, IMapper mapper*/
         , IEmployeeValidationService employeeValidationService)
     {
         _employeeRepository = employeeRepository;
-        _mapper = mapper;
+        // _mapper = mapper;
         _employeeValidationService = employeeValidationService;
         _logger = _loggerFactory.CreateLogger(nameof(EmployeeController));
     }
