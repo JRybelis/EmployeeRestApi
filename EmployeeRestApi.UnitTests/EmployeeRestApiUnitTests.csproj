@@ -32,7 +32,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Validators" />
+    <Folder Include="Controllers" />
   </ItemGroup>
 
 </Project>

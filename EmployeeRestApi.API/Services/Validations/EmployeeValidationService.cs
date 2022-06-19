@@ -38,8 +38,8 @@ public class EmployeeValidationService : IEmployeeValidationService
             case true when employeeDto.BirthDate != ceoEmployee.BirthDate &&
                            employeeDto.LastName != ceoEmployee.LastName &&
                            employeeDto.FirstName != ceoEmployee.FirstName &&
-                           employeeDto.EmploymentCommencementDate !=
-                           ceoEmployee.EmploymentCommencementDate:
+                           employeeDto.StartDate !=
+                           ceoEmployee.StartDate:
                 errorMessage
                     = "There is already a CEO active in the company's organisational structure. There can only be one CEO of the company.";
                 _logger.LogDebug(errorMessage);
@@ -75,7 +75,7 @@ public class EmployeeValidationService : IEmployeeValidationService
         #region Start date check
 
         if (!await IsEmploymentCommencementDateLaterThan20000101(employeeDto
-                .EmploymentCommencementDate))
+                .StartDate))
         {
             errorMessage
                 = "The employee cannot have started to work for this company prior to 2000-01-01.";
@@ -83,7 +83,7 @@ public class EmployeeValidationService : IEmployeeValidationService
             return false;
         }
 
-        if (await IsEmploymentCommencementDateLaterThanPresent(employeeDto.EmploymentCommencementDate))
+        if (await IsEmploymentCommencementDateLaterThanPresent(employeeDto.StartDate))
         {
             errorMessage
                 = "The employee can only be registered as a current employee if his or her employment commencement date is not in the future.";
@@ -134,8 +134,8 @@ public class EmployeeValidationService : IEmployeeValidationService
             case true when employeeDto.BirthDate == ceoEmployee.BirthDate &&
                            employeeDto.LastName == ceoEmployee.LastName &&
                            employeeDto.FirstName == ceoEmployee.FirstName &&
-                           employeeDto.EmploymentCommencementDate ==
-                           ceoEmployee.EmploymentCommencementDate:
+                           employeeDto.StartDate ==
+                           ceoEmployee.StartDate:
                 errorMessage
                     = "There is already a CEO active in the company's organisational structure. There can only be one CEO of the company.";
                 _logger.LogDebug(errorMessage);
@@ -171,7 +171,7 @@ public class EmployeeValidationService : IEmployeeValidationService
         #region Start date check
 
         if (!await IsEmploymentCommencementDateLaterThan20000101(employeeDto
-                .EmploymentCommencementDate))
+                .StartDate))
         {
             errorMessage
                 = "The employee cannot have started to work for this company prior to 2000-01-01.";
@@ -179,7 +179,7 @@ public class EmployeeValidationService : IEmployeeValidationService
             return false;
         }
 
-        if (await IsEmploymentCommencementDateLaterThanPresent(employeeDto.EmploymentCommencementDate))
+        if (await IsEmploymentCommencementDateLaterThanPresent(employeeDto.StartDate))
         {
             errorMessage
                 = "The employee can only be registered as a current employee if his or her employment commencement date is not in the future.";
