@@ -22,7 +22,7 @@ public class EmployeeProfile : Profile
                 opt => opt.MapFrom(src => $"{src.BirthDate}")
             )
             .ForMember(
-                dest => dest.EmploymentCommencementDate, opt => opt.MapFrom(src => $"{src.EmploymentCommencementDate}")
+                dest => dest.StartDate, opt => opt.MapFrom(src => $"{src.StartDate}")
             )
             .ForMember(
                 dest => dest.ManagerId, opt => opt.Condition((src, dest, srcMember) => srcMember != null)    

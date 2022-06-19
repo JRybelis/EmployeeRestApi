@@ -12,7 +12,7 @@ internal static class EmployeeMapper
             FirstName = employeeDto.FirstName
             , LastName = employeeDto.LastName
             , BirthDate = employeeDto.BirthDate
-            , EmploymentCommencementDate = employeeDto.EmploymentCommencementDate
+            , StartDate = employeeDto.StartDate
             , ManagerId = employeeDto.ManagerId
             , HomeAddress = employeeDto.HomeAddress
             , CurrentSalary = employeeDto.CurrentSalary
@@ -27,7 +27,7 @@ internal static class EmployeeMapper
             FirstName = employee.FirstName
             , LastName = employee.LastName
             , BirthDate = employee.BirthDate
-            , EmploymentCommencementDate = employee.EmploymentCommencementDate
+            , StartDate = employee.StartDate
             , ManagerId = employee.ManagerId
             , HomeAddress = employee.HomeAddress
             , CurrentSalary = employee.CurrentSalary

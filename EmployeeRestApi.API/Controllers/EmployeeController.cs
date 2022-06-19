@@ -1,9 +1,9 @@
-using AutoMapper;
 using EmployeeRestApi.Interfaces;
 using EmployeeRestApi.Mappings;
 using EmployeeRestApiLibrary.Dtos;
 using EmployeeRestApiLibrary.Enumerations;
 using EmployeeRestApiLibrary.Models;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EmployeeRestApi.Controllers;
@@ -16,14 +16,16 @@ public class EmployeeController : Controller
     private readonly ILoggerFactory _loggerFactory = new LoggerFactory();
     private readonly IEmployeeRepository _employeeRepository;
     private readonly IEmployeeValidationService _employeeValidationService;
+    private readonly IValidator<EmployeeDto> _employeeDtoValidator;
     // private readonly IMapper _mapper;
     
     public EmployeeController(IEmployeeRepository employeeRepository/*, IMapper mapper*/
-        , IEmployeeValidationService employeeValidationService)
+        , IEmployeeValidationService employeeValidationService, IValidator<EmployeeDto> employeeDtoValidator)
     {
         _employeeRepository = employeeRepository;
         // _mapper = mapper;
         _employeeValidationService = employeeValidationService;
+        _employeeDtoValidator = employeeDtoValidator;
         _logger = _loggerFactory.CreateLogger(nameof(EmployeeController));
     }
 
@@ -80,8 +82,10 @@ public class EmployeeController : Controller
     [HttpPost]
     public async Task<IActionResult> CreateEmployeeAsync([FromBody] EmployeeDto employeeDto)
     {
+        var dtoValidation = await _employeeDtoValidator.ValidateAsync(employeeDto);
         var validationSuccess = await _employeeValidationService.IsDtoValidationSuccess(employeeDto, _employeeRepository);
-        if (validationSuccess)
+        
+        if (validationSuccess && dtoValidation.IsValid)
         {
             var employee = /*_mapper.Map<Employee>(employeeDto);*/ employeeDto.AsEntity();
             await _employeeRepository.Create(employee);
@@ -89,9 +93,10 @@ public class EmployeeController : Controller
             var updatedResource = await GetByIdAsync(employee.Id); 
             var actionName = nameof(GetByIdAsync);
             var routeValues = new {id = employee.Id};
+            
             return CreatedAtAction(actionName, routeValues, updatedResource);    
         }
-
+        
         const string errorMessage = $"Validation of {nameof(employeeDto)} data failed. Database import aborted. Please review the error information above, rectify the data supplied and try again.";
         _logger.LogError(errorMessage);
 
@@ -102,8 +107,10 @@ public class EmployeeController : Controller
     [HttpPut]
     public async Task <IActionResult> UpdateEmployeeAsync([FromRoute] long id, [FromBody] EmployeeDto employeeDto)
     {
+        var dtoValidation = await _employeeDtoValidator.ValidateAsync(employeeDto);
         var validationSuccess = await _employeeValidationService.IsDtoValidationSuccess(employeeDto, _employeeRepository, id);
-        if (validationSuccess)
+        
+        if (validationSuccess && dtoValidation.IsValid) 
         {
             var employee = /*_mapper.Map<Employee>(employeeDto);*/ employeeDto.AsEntity();
             await _employeeRepository.Update(id, employee);
@@ -129,7 +136,6 @@ public class EmployeeController : Controller
             = await _employeeValidationService.IsCurrentSalaryAPositiveAmount(salary);
         if (validationSuccess)
         {
-            var employee = await _employeeRepository.GetById(id);
             await _employeeRepository.UpdateSalary(id, salary);
             
             var updatedResource = await GetByIdAsync(id); 

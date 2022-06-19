@@ -6,6 +6,7 @@ using EmployeeRestApi.Data;
 using EmployeeRestApi.Interfaces;
 using EmployeeRestApi.Repositories;
 using EmployeeRestApi.Services;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -59,6 +60,14 @@ builder.Services.AddSwaggerGen(options =>
     options.UseInlineDefinitionsForEnums();
 });
 builder.Services.AddSwaggerGenNewtonsoftSupport();
+builder.Services.AddFluentValidation(configuration =>
+{
+    
+    configuration.RegisterValidatorsFromAssembly(typeof(Program).Assembly);
+    configuration.AutomaticValidationEnabled = false;
+    configuration.DisableDataAnnotationsValidation = false; 
+}); 
+    
 builder.Services.AddScoped(typeof(IEmployeeValidationService), typeof(EmployeeValidationService));
 
 var app = builder.Build();

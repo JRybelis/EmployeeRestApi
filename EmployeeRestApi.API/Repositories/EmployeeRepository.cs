@@ -102,7 +102,7 @@ public class EmployeeRepository : IEmployeeRepository
         existingEmployee.FirstName = employee.FirstName;
         existingEmployee.LastName = employee.LastName;
         existingEmployee.BirthDate = employee.BirthDate;
-        existingEmployee.EmploymentCommencementDate = employee.EmploymentCommencementDate;
+        existingEmployee.StartDate = employee.StartDate;
         existingEmployee.HomeAddress = employee.HomeAddress;
         existingEmployee.ManagerId = employee.ManagerId;
         existingEmployee.Role = employee.Role;

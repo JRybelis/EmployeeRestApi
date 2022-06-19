@@ -24,8 +24,8 @@ public class Employee
     public DateTime BirthDate { get; set; }
     
     
-    [SourceMember(nameof(EmployeeDto.EmploymentCommencementDate))]
-    public DateTime EmploymentCommencementDate { get; set; }
+    [SourceMember(nameof(EmployeeDto.StartDate))]
+    public DateTime StartDate { get; set; }
     
     
     [SourceMember(nameof(EmployeeDto.ManagerId))]

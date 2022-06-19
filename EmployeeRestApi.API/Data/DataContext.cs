@@ -51,7 +51,7 @@ public class DataContext : DbContext
             .IsRequired();
 
         modelBuilder.Entity<Employee>()
-            .Property(e => e.EmploymentCommencementDate)
+            .Property(e => e.StartDate)
             .IsRequired();
 
         modelBuilder.Entity<Employee>()
