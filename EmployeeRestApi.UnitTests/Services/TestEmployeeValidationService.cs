@@ -31,12 +31,13 @@ public class TestEmployeeValidationService : BaseTest
         , 2000, JobRole.DeveloperGame)]
     [TestCase(null, null, "1997-7-11 00:00:00", "2010-7-12 00:00:00", null, null
         , 2000, JobRole.DeveloperGame)]
-    public async Task CreateEmployeeAsync_OmitAddingAnyMandatoryFields_ValidationFails(
+    public Task CreateEmployeeAsync_OmitAddingAnyMandatoryFields_ValidationFails(
         string forename, string surname, DateTime birthDate, DateTime startDate, long? managerId, string address
         , decimal salary, JobRole role)
     {
+        // Arrange
         const string errorMessage = "Mandatory field missing"; 
-        var employee = new Employee
+        var employeeDto = new EmployeeDto()
         {
             FirstName = forename
             , LastName = surname
@@ -48,7 +49,10 @@ public class TestEmployeeValidationService : BaseTest
             , Role = role
         };
         
-        CheckError(new CreateEmployeeValidator(), errorMessage, employee);
+        // Act
+        CheckError(new CreateEmployeeValidator(), errorMessage, employeeDto);
+        
+        return Task.CompletedTask;
     }
     
     [TestCase("TestForename", "TestSurname", "1997-7-11 00:00:00", "2010-7-12 00:00:00", null, "Some Test Address 1"
@@ -59,7 +63,7 @@ public class TestEmployeeValidationService : BaseTest
         string forename, string surname, DateTime birthDate, DateTime startDate, long? managerId, string address
         , decimal salary, JobRole role)
     {
-        var employee = new Employee
+        var employeeDto = new EmployeeDto()
         {
             FirstName = forename
             , LastName = surname
@@ -71,7 +75,7 @@ public class TestEmployeeValidationService : BaseTest
             , Role = role
         };
         
-        CheckCorrectOutcome(new CreateEmployeeValidator(), employee);
+        CheckCorrectOutcome(new CreateEmployeeValidator(), employeeDto);
     }
     #endregion
     
@@ -318,7 +322,7 @@ public class TestEmployeeValidationService : BaseTest
     {
         // Arrange
         #region Arrange
-       var employeeDto = new EmployeeDto()
+        var employeeDto = new EmployeeDto()
         {
             FirstName = "Empl2Forename",
             LastName = "Empl2Forename",

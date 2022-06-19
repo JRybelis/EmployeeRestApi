@@ -90,11 +90,11 @@ public class EmployeeController : Controller
             var employee = /*_mapper.Map<Employee>(employeeDto);*/ employeeDto.AsEntity();
             await _employeeRepository.Create(employee);
             
-            var updatedResource = await GetByIdAsync(employee.Id); 
+            var createdResource = employeeDto; 
             var actionName = nameof(GetByIdAsync);
             var routeValues = new {id = employee.Id};
             
-            return CreatedAtAction(actionName, routeValues, updatedResource);    
+            return CreatedAtAction(actionName, routeValues, createdResource);    
         }
         
         const string errorMessage = $"Validation of {nameof(employeeDto)} data failed. Database import aborted. Please review the error information above, rectify the data supplied and try again.";

@@ -6,9 +6,9 @@ namespace EmployeeRestApiUnitTests;
 public class BaseTest : InMemoryDbContextRunner
 {
     protected static void CheckError<T>(AbstractValidator<T> validator, string errorMessage
-        , T validatedMethod)
+        , T validationObject)
     {
-        var validationResult = validator.Validate(validatedMethod);
+        var validationResult = validator.Validate(validationObject);
         Assert.That(validationResult.IsValid, Is.False);
 
         if (validationResult.IsValid) return;
@@ -19,9 +19,9 @@ public class BaseTest : InMemoryDbContextRunner
     }
     
     protected static void CheckCorrectOutcome<T>(AbstractValidator<T> validator
-        , T validatedMethod)
+        , T validationObject)
     {
-        var validationResult = validator.Validate(validatedMethod);
+        var validationResult = validator.Validate(validationObject);
         Assert.That(validationResult.IsValid, Is.True);
     }
 }

@@ -1,9 +1,10 @@
+using EmployeeRestApiLibrary.Dtos;
 using EmployeeRestApiLibrary.Models;
 using FluentValidation;
 
 namespace EmployeeRestApi.Services.Validations;
 
-public class CreateEmployeeValidator : AbstractValidator<Employee>
+public class CreateEmployeeValidator : AbstractValidator<EmployeeDto>
 {
     public CreateEmployeeValidator()
     {

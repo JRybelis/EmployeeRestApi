@@ -31,8 +31,4 @@
     <ProjectReference Include="..\EmployeeRestApi.LIB\EmployeeRestApiLibrary.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Controllers" />
-  </ItemGroup>
-
 </Project>
